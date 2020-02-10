@@ -1,4 +1,4 @@
-function [X, sqrtP, sqrtR] = ekf_wr_correction_pv_gnns(X, sqrtP, Z, sqrtR)
+function [X, sqrtP] = ekf_wr_correction_pv_gnns(X, sqrtP, Z, sqrtR)
 % X [r v q]
 % Z [r v]
 
@@ -16,23 +16,20 @@ H = [E33 O33 O34;
 dz = Z - H * X;
 
 %% ordinary K, H
-P = sqrtP * sqrtP';
-R = sqrtR * sqrtR';
-R = R + H*P*H';
-K = P * H' * R^-1;
-P = P - K * H * P;
-sqrtP = chol(P,'lower');
-% sqrtR = chol(R,'lower');
+% P = sqrtP * sqrtP';
+% R = sqrtR * sqrtR';
+% Rk = R + H*P*H';
+% K = P * H' * (Rk)^-1;
+% P = P - K *H *P;
+% sqrtP = chol(P,'lower');
+% X1 = X + K*dz;
 
-% square-root K, H
-% M = tria([sqrtR, H * sqrtP; zeros(10, 6), sqrtP], 16);
-% sqrtR = M(1:6, 1:6);
-% K = M(7:16, 1:6);
-% sqrtP = M(7:16, 7:16);
-
-%% state est
-X = X + K*dz;
-
+%% square-root K, H
+M = -tria([sqrtR, H * sqrtP; zeros(10, 6), sqrtP], 16);
+sqrtRk = M(1:6, 1:6);
+K = M(7:16, 1:6);
+sqrtP = M(7:16, 7:16);
+X = X + K*(sqrtRk')^-1*dz;
 
 end
 

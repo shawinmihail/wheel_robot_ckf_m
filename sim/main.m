@@ -17,7 +17,7 @@ initial_est_state = [0;0;0;0;0;0;1;0;0;0];
 gps_pos_local_rsm = 0.12;
 gps_vel_local_rsm = 0.05;
 R = diag([gps_pos_local_rsm*[1; 1; 1]; gps_vel_local_rsm*[1; 1; 1]]).^2;
-Q = diag([1e-4*[1; 1; 1];    1e-4*[1; 1; 1];    1e-12*[1; 1; 1; 1]]);
+Q = diag([1e-4*[1; 1; 1];    1e-4*[1; 1; 1];    1e-4*[1; 1; 1; 1]]);
 P0 = 12*Q;
 
 R_att = diag(1e-6*[1 1 1 1]);
@@ -59,12 +59,12 @@ for i = 1:N
 
     
 %     correct pos vel
-    if (mod(i, 50) == 8)
-        if rand() > 0.1
+%     if (mod(i, 50) == 8)
+%         if rand() > 0.1
             Z = mes_state_curr(1:6);
-%             [est_state_next, sqrtP_next, sqrtR] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR);
-        end
-    end
+            [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR);
+%         end
+%     end
     
     
     %% postproc
