@@ -1,22 +1,22 @@
 clc
 clear
 
-% q = sym('q', [4, 1]);
-% v = sym('v', [3, 1]);
-% 
-% Q = quat2matrix(q);
-% 
-% f(q) = Q*v;
-% dfdq = jacobian(f, q);
-% matlabFunction(dfdq,'file','ekf/ekf_routins/quat_rot_jacob.m')
-
 q = sym('q', [4, 1]);
 v = sym('v', [3, 1]);
-qv = [0; v];
 
-f(q) = 0.5*quatMultiply(q , qv)
+Q = quat2matrix(quatDual(q));
+
+f(q) = Q*v;
 dfdq = jacobian(f, q)
-matlabFunction(dfdq,'file','ekf/ekf_routins/poison_eq_jacob.m')
+matlabFunction(dfdq,'file','ekf/ekf_routins/quat_dual_rot_jacob.m')
+
+% q = sym('q', [4, 1]);
+% v = sym('v', [3, 1]);
+% qv = [0; v];
+% 
+% f(q) = 0.5*quatMultiply(q , qv);
+% dfdq = jacobian(f, q);
+% matlabFunction(dfdq,'file','ekf/ekf_routins/poison_eq_jacob.m')
 
 % q = [100 30 10 15]';
 % q = q / norm(q);

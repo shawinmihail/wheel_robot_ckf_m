@@ -2,8 +2,10 @@ function [X, sqrtP] = ekf_wr_correction_pv_gnns(X, sqrtP, Z, sqrtR)
 % X [r v q]
 % Z [r v]
 
+n = length(X);
+m = length(Z);
+
 %% mes model
-%% P
 O33 = zeros(3, 3);
 O34 = zeros(3, 4);
 O43 = zeros(4, 3);
@@ -13,7 +15,7 @@ E33 = eye(3, 3);
 H = [E33 O33 O34;
      O33 E33 O34];
 %% mes error
-dz = Z - H * X;
+dz = Z - X(1:6);
 
 %% ordinary K, H
 % P = sqrtP * sqrtP';
@@ -25,10 +27,10 @@ dz = Z - H * X;
 % X1 = X + K*dz;
 
 %% square-root K, H
-M = -tria([sqrtR, H * sqrtP; zeros(10, 6), sqrtP], 16);
-sqrtRk = M(1:6, 1:6);
-K = M(7:16, 1:6);
-sqrtP = M(7:16, 7:16);
+M = tria([sqrtR, H * sqrtP; zeros(n, m), sqrtP], m + n);
+sqrtRk = M(1:m, 1:m);
+K = M(m + 1:m + n, 1:m);
+sqrtP = M(m + 1:n + m, m + 1:n + m);
 X = X + K*(sqrtRk')^-1*dz;
 
 end
