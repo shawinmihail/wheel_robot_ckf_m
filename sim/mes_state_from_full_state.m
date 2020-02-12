@@ -19,4 +19,4 @@ mes_state(7:9) = aB + randn(3, 1) * imu_acc_rsm;
 mes_state(10:13) = full_state(10:13) + randn(4, 1) * gps_quat_rsm;
 mes_state(10:13) = mes_state(10:13) / norm(mes_state(10:13));
 % w
-mes_state(14:16) = full_state(14:16) + randn(3, 1) * imu_rot_vel_rsm;
+mes_state(14:16) = full_state(14:16) + 0 * randn(3, 1) * imu_rot_vel_rsm;

@@ -9,6 +9,7 @@ v_dot = quatRotate(q, a_mes) + g;
 qw = [0;w_mes];
 q_dot = 0.5 * quatMultiply(q, qw);
 
+
 X_dot = [r_dot; v_dot; q_dot];
 X = X + X_dot * dt;
 X(7:10) = X(7:10) / norm(X(7:10));
