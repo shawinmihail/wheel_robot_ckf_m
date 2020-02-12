@@ -1,0 +1,43 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{cmap}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+
+
+\begin{document}
+\section{Модель движения}
+
+Положение робота описывается в некоторой локальной системе отсчета $I$, ось $Z_I$ направлена против гравитации, оси $X_I$ и $Y_I$ дополняют систему до правой тройки.
+
+Ориентация робота представлена кватернионом $q$ таким образом, что произвольный вектор, записанный в собственных осях $B$ робота проецируется в локальную систему как
+$r_I = q \circ r_B \circ \tilde{q}$
+
+Движение робота определено текущей ориентацией и управляющим воздействием на приводы колес $v$.
+\begin{align*} 
+&\dot{r}_B = (v \quad 0 \quad 0)^T \\
+&\dot{r}_I = q \circ \dot{r}_B \circ \tilde{q}
+\end{align*}
+
+Текущая ориентация робота определяется плоской кривизной траектории робота $u$, которая регулируется поворотом рулей, и вектором нормали $n_s$ к поверхности, по которой перемещается робот.
+\begin{align*} 
+&q = q_{\phi} \circ q_{s} \\
+&q_{\phi} = (\cos{\frac{\phi}{2}} \quad n_{s}\sin{\frac{\phi}{2}})^T \\
+&\dot{\phi} = vu \\
+&q_{s} = (\cos{\frac{\psi}{2}} \quad n_{\perp}\sin{\frac{\psi}{2}})^T \\
+&\cos{\psi} = e_z \cdot n_s \\
+& n_{\perp} ||n_{\perp}|| = e_z \times n_s 
+\end{align*}
+Поверхность может быть задана как $f_s(x,y,z) = 0$,
+тогда 
+$$n_s = \frac{\nabla f_s}{||\nabla f_s||}.$$
+
+\section{Модель измерений}
+	
+
+
+
+
+\end{document}
