@@ -6,9 +6,9 @@ g = [0;0;-10];
 q = X(7:10);
 r_dot = X(4:6);
 v_dot = quatRotate(q, a_mes) + g;
+
 qw = [0;w_mes];
 q_dot = 0.5 * quatMultiply(q, qw);
-
 
 X_dot = [r_dot; v_dot; q_dot];
 X = X + X_dot * dt;

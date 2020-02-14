@@ -25,7 +25,7 @@ function [next_state, next_yaw] = calculate_next_state(state, yaw, ctrl, grad_su
     
     %% q1
     q_surf1 = calc_q_surf(n_unit1);
-    yaw1 = yaw0 + v* u * dt;
+    yaw1 = yaw0 + v * u * dt;
     q1 = calc_q_full(grad_surf_function, r1, yaw1);
     next_yaw = yaw1;
     

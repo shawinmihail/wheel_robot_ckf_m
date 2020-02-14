@@ -14,7 +14,8 @@ mes_state(4:6) = full_state(4:6) + randn(3, 1) * gps_vel_local_rsm;
 q = full_state(10:13);
 a = full_state(7:9) - g;
 aB = quatRotate(quatDual(q), a);
-mes_state(7:9) = aB + randn(3, 1) * imu_acc_rsm;
+mes_state(7:9) = aB + 0*randn(3, 1) * imu_acc_rsm;
+
 % q
 mes_state(10:13) = full_state(10:13) + randn(4, 1) * gps_quat_rsm;
 mes_state(10:13) = mes_state(10:13) / norm(mes_state(10:13));

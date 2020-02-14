@@ -17,18 +17,18 @@ rng(seed);
 
 % loop
 dt = 1e-2;
-N = 9999;
+N = 99999;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
 
 %initial
 initial_x = 0;
-initial_y = 0;
+initial_y = -30;
 initial_z = surf_fcn(initial_x, initial_y);
 initial_r = [initial_x;initial_y;initial_z];
 initial_v = [0;0;0];
-initial_yaw = 0;
+initial_yaw = pi/3;
 initial_q = calc_q_full(grad_surf, initial_r, initial_yaw);
 
 initial_state = [initial_r; initial_v; initial_q];
@@ -50,7 +50,7 @@ R_g_imu = diag(imu_acc_rsm*[1; 1; 1]).^2;
 R_pvq_gnns = diag([gps_pos_local_rsm*[1; 1; 1]; gps_vel_local_rsm*[1; 1; 1]; gps_quat_rsm*[1; 1; 1; 1]]).^2;
 R_v_unit_gnns = diag(gps_vel_local_rsm*[1; 1; 1]).^2;
 
-Q = diag([1e-4*[1; 1; 1];    1e-4*[1; 1; 1];    1e-4*[1; 1; 1; 1]]);
+Q = diag([1e-4*[1; 1; 1];    1e-4*[1; 1; 1];    1e-8*[1; 1; 1; 1]]);
 P0 = 12*Q;
 
 R_att = diag(1e-6*[1 1 1 1]);
@@ -76,7 +76,7 @@ for i = 1:N
     i    
     
     %% actuators dyn modeling
-    next_ctrl = [1,0.1];
+    next_ctrl = [1.0 ,-0.01];
     next_ctrl = process_control_input(curr_ctrl, next_ctrl, dt);
     
     %% wheel robot state evolution
@@ -98,15 +98,14 @@ for i = 1:N
     
     %% predict with imu
     [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, sqrtQ, a_mes, w_mes, dt);
-%     
-% 
-%     %% correct pos vel gnns
-%     if (mod(i, 50) == 40)
-%         if rand() > 0.1
-%             Z = mes_state_curr(1:6);
-%             [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns);
-%         end
-%     end
+
+    %% correct pos vel gnns
+    if (mod(i, 5) == 4)
+        if rand() > 0.0
+            Z = mes_state_curr(1:6);
+            [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns);
+        end
+    end
 %     
 %     %% correct att by vel dir
 %     if i > 1000

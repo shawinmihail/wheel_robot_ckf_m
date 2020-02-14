@@ -12,6 +12,7 @@ O43 = zeros(4, 3);
 O44 = zeros(4, 4);
 E33 = eye(3, 3);
 
+% pos vel stright corrections pos = pos_mes, vel = vel_mes
 H = [E33 O33 O34;
      O33 E33 O34];
 %% mes error
@@ -33,5 +34,6 @@ K = M(m + 1:m + n, 1:m);
 sqrtP = M(m + 1:n + m, m + 1:n + m);
 X = X + K*(sqrtRk')^-1*dz;
 
+dz1 = Z - X(1:6);
 end
 
