@@ -6,7 +6,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english,russian]{babel}
 
-
 \begin{document}
 \section{Модель движения}
 
@@ -16,25 +15,25 @@
 $r_I = q_{IB} \circ r_B \circ \tilde{q}_{IB}$
 
 Движение робота определено текущей ориентацией и управляющим воздействием на приводы колес $v$.
-\begin{align*} 
+\begin{align} \label{eq:model_velocity}
 &\dot{r}_B = (v \quad 0 \quad 0)^T \\
 &\dot{r}_I = q_{IB} \circ \dot{r}_B \circ \tilde{q}_{IB}
-\end{align*}
+\end{align}
 
 Текущая ориентация робота определяется поворотом руля, которая определяет локальную кривизну траектории $u$, и вектором нормали $n_s$ к поверхности, по которой перемещается робот.
-\begin{align*} 
+\begin{align} 
 &q_{IB} = q_{\phi} \circ q_{s} \\
 &q_{\phi} = (\cos{\frac{\phi}{2}} \quad n_{s}\sin{\frac{\phi}{2}})^T \\
 &\dot{\phi} = vu \\
 &q_{s} = (\cos{\frac{\psi}{2}} \quad n_{\perp}\sin{\frac{\psi}{2}})^T \\
 &\cos{\psi} = e_z \cdot n_s \\
 & n_{\perp} ||n_{\perp}|| = e_z \times n_s 
-\end{align*}
+\end{align}
 
 Угловая скорость связана с кватернионом ориентации уравнением Пуассона
-\begin{align*} 
-&\dot{q}_{IB} = \frac{1}{2} q_{IB} \circ \Omega_{B} \\
-\end{align*}
+\begin{align}  \label{eq:model_rot_velocity}
+&\dot{q}_{IB} = \frac{1}{2} q_{IB} \circ \Omega_{B}
+\end{align}
 Поверхность может быть задана как $f_s(x,y,z) = 0$,
 тогда 
 $$n_s = \frac{\nabla f_s}{||\nabla f_s||}.$$
@@ -47,34 +46,92 @@ $$n_s = \frac{\nabla f_s}{||\nabla f_s||}.$$
 $r_B = q_{BM} \circ r_M \circ \tilde{q}_{BM}.$
 
 Тогда, показания акселерометра $a^{imu}$ складываются из переносной, вращательной и центробежной компонент, ускорения свободного падения и ошибки измерений $e^{imu}$.
-\begin{align*} 
-&q_{BM} \circ (a^{imu} - e^{imu}) \circ \tilde{q}_{BM} = 
-{q}_{BI} \circ (\ddot{r}_{I} - g_I) \circ \tilde{q}_{BI}
+\begin{align} 
+\begin{split} \label{eq:imu_mes}
+&q_{BM} \circ (a^{imu} - e^{imu}) \circ \tilde{q}_{BM} = \\
+&\quad \quad \quad {q}_{BI} \circ (\ddot{r}_{I} - g_I) \circ \tilde{q}_{BI}
  - {\delta r^{imu}_B}  \times \dot{\Omega}_B
  - \Omega_B \times (\delta r^{imu}_B \times \Omega_B)
+\end{split}
 \\
 &q_{BI} = \tilde{q}_{IB}
-\end{align*}
+\end{align}
 
-Ошибка измерений сосоит из следующих компонент: шум и биас. Нужно пострить их модели.
+Будем считать, что ошибка измерений акселерометра складывается из постоянной компоненты  и белого шума
+\begin{align} 
+e^{imu} = e_{0}^{imu} + \epsilon^{imu}
+\end{align}
 
-Смещение и поворот собственных осей можно найти с помощью калибровки.
+Смещение и поворот собственных осей, а также постоянную компоненту ошибки измерений $e_{0}^{imu}$ можно найти с помощью калибровки.
 
 \subsection{Датчик угловой скорости}
 Обозначим $\delta r^{\textit{gyr}}$ смещение гироскопа,  $q_{BG}$ -- ориентацию собственных осей гироскопа относительно осей $B$.
 
 Тогда, показания акселерометра $w^{\textit{gyr}}$ складываются из угловой скорости сенсора, (может быть еще чего-то) и ошибки измерений $e^{\textit{gyr}}$.
 
-\begin{align*} 
+\begin{align} 
 &q_{BG} \circ (w^{\textit{gyr}} - e^{\textit{gyr}}) \circ \tilde{q}_{BG} = 
 \Omega_B
 \\
-\end{align*}
+\end{align}
 
-Ошибка измерений сосоит из следующих компонент: шум и биас. Нужно пострить их модели.
+Будем считать, что ошибка измерений гироскопа складывается из постоянной компоненты  и белого шума
+\begin{align} 
+e^{\textit{gyr}} = e_{0}^{\textit{gyr}} + \epsilon^{\textit{gyr}}
+\end{align}
 
-Смещение и поворот собственных осей можно найти с помощью калибровки.
+Смещение и поворот собственных осей, а также постоянную компоненту ошибки измерений $e_{0}^{\textit{gyr}}$ можно найти с помощью калибровки.
 
+\subsection{Система глобальной навигации}
+Обозначим $\delta r^{gnns}$ смещение принимающей антенны систем глобальной навигации. Тогда измерения положения и скорости связаны с положением начала собственной системы координат как
+\begin{align} 
+&r_{gnns} = r_I + q_{IB} \circ \delta r^{gnns}_B \circ \tilde{q}_{IB} \\
+&v_{gnns} = v_I + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB} \\
+\end{align}
 
+\section{Оценка состояния}
+Для оценки состояния используем алгоритм SR-EKF (квадратно-корневой расширенный фильтр Калмана). Вектор состояния составим из положения, скорости, ускорения, кватерниона ориентации и угловой скорости
+\begin{align} 
+&x = (r_I \quad \dot{r}_I \quad \ddot{r}_I \quad q_{BI} \quad \Omega_B)^T
+\end{align}
+!!!Тут стоит описать алгоритм!!!
+
+\subsection{Арпиори оценка}
+Априори оценка ускорения и угловой скорости производится на основе показаний датчиков ускорения и угловой скорости. Остальные компоненты оцениваются при помощи интегрирования.
+Зная калибровочные параметры датчика и делая некоторые упрощения для уравнения \eqref{eq:imu_mes}, будем считать, что
+\begin{align} 
+\begin{split}
+&\ddot{r}_{I} = {q}_{BI} \circ  [a^{imu}_{calib} + (\Omega_B \times (\delta r^{imu}_B \times \Omega_B))] \circ \tilde{q}_{BI} + g_I
+\end{split}
+\end{align}
+Здесь $a^{imu}_{calib}$ -- скорректированные на поворот и постоянную компоненту ошибки показания акселерометра
+\begin{align} 
+\begin{split}
+a^{imu}_{calib} = q_{BM} \circ (a^{imu} - e^{imu}_0) \circ \tilde{q}_{BM}
+\end{split}
+\end{align}
+Для угловой скорости запишем
+\begin{align} 
+\Omega_B = w^{\textit{gyr}}_{calib}
+\end{align}
+\begin{align} 
+&w^{\textit{gyr}}_{calib} = q_{BG} \circ (w^{\textit{gyr}} - e_0^{\textit{gyr}}) \circ \tilde{q}_{BG}
+\end{align}
+С учетом этих уравнений и уравнений модели  (\ref{eq:model_velocity}-\ref{eq:model_rot_velocity})
+\begin{align}
+\begin{split}
+&F = \frac{f(x,t)}{\delta x} = \\
+&\begin{pmatrix}
+O_{3x3} & E_{3x3} & O_{3x3} & O_{3x4} & O_{3x3}\\
+O_{3x3} & O_{3x3} & E_{3x3} & M^{\ddot{r}}_{\delta q} &M^{\ddot{r}}_{\delta \Omega}\\
+O_{3x3} & O_{3x3} & O_{3x3} & O_{3x4} & O_{3x3}\\
+O_{4x3} & E_{4x3} & O_{4x3} & M^{\dot{q}}_{\delta q} & M^{\dot{q}}_{\delta \Omega}\\
+O_{3x3} & O_{3x3} & O_{3x3} & O_{3x4} & O_{3x3}
+\end{pmatrix}
+\end{split}
+\end{align}
+!!!Здесь $M$ -- матрицы, которые нужно описать здесь.!!!
+\subsection{Коррекция}
+Для коррекции будем использовать показания систем глобальной навигации, которые позволяют оценить положение и скорость антенны.
 
 \end{document}

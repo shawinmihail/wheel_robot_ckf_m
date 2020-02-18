@@ -71,7 +71,7 @@ for i = 1:N
 
     %% mes_state
     mes_state_curr = mes_state_from_full_state(...
-        full_state_curr, gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, imu_acc_rsm, imu_rot_vel_rsm, imu_attachment_r);
+        full_state_curr, gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, imu_acc_rsm, imu_rot_vel_rsm, imu_attachment_r, gps_attachment_r);
      
     %% estimation, X = [r v q]
     a_mes = mes_state_curr(7:9);
@@ -80,13 +80,13 @@ for i = 1:N
     %% predict with imu
     [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, sqrtQ, a_mes, w_mes, dt);
 
-    %% correct pos vel gnns
-    if (mod(i, 5) == 4)
-        if rand() > 0.0
-            Z = mes_state_curr(1:6);
-            [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns);
-        end
-    end
+%     %% correct pos vel gnns
+%     if (mod(i, 5) == 4)
+%         if rand() > 0.0
+%             Z = mes_state_curr(1:6);
+%             [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns);
+%         end
+%     end
 %     
 %     %% correct att by vel dir
 %     if i > 1000

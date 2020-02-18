@@ -1,5 +1,7 @@
 function mes_state = mes_state_from_full_state(...
-    full_state, gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, imu_acc_rsm, imu_rot_vel_rsm, imu_attachment_r)
+    full_state, gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, imu_acc_rsm, imu_rot_vel_rsm, imu_attachment_r, gps_attachment_r)
+
+q = full_state(10:13);
 
 %% env
 g = [0 0 -10]';
@@ -7,11 +9,13 @@ g = [0 0 -10]';
 %% add noise
 mes_state = zeros(16, 1);
 % r
-mes_state(1:3) = full_state(1:3) + randn(3, 1) * gps_pos_local_rsm;
+dr = quatRotate(q ,gps_attachment_r);
+mes_state(1:3) = full_state(1:3) + dr + randn(3, 1) * gps_pos_local_rsm;
+q = full_state(10:13);
 % v
+dv = quatRotate(q, cross(full_state(14:16), gps_attachment_r));
 mes_state(4:6) = full_state(4:6) + randn(3, 1) * gps_vel_local_rsm;
 % a
-q = full_state(10:13);
 a_tr = quatRotate(quatDual(q), full_state(7:9) - g);
 a_rot = -cross(imu_attachment_r, full_state(17:19));
 a_centr = -cross(full_state(14:16), cross(imu_attachment_r, full_state(14:16)));
