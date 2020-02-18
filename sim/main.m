@@ -17,12 +17,12 @@ rng(seed);
 
 % loop
 dt = 1e-2;
-N = 99999;
+N = 9999;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
 
-%initial
+% initial
 initial_x = 0;
 initial_y = -30;
 initial_z = surf_fcn(initial_x, initial_y);
@@ -30,67 +30,48 @@ initial_r = [initial_x;initial_y;initial_z];
 initial_v = [0;0;0];
 initial_yaw = pi/3;
 initial_q = calc_q_full(grad_surf, initial_r, initial_yaw);
+initial_w = [0;0;0];
 
 initial_state = [initial_r; initial_v; initial_q];
 initial_ctrl = [0; 0];
 initial_est_state = initial_state;
 
 
-%% sensors
-% gps
-gps_pos_local_rsm = 0.12;
-gps_vel_local_rsm = 0.05;
-gps_quat_rsm = 0.001;
-% imu
-imu_acc_rsm = 0.05;
-imu_rot_vel_rsm = 0.01;
-
-R_pv_gnns = diag([gps_pos_local_rsm*[1; 1; 1]; gps_vel_local_rsm*[1; 1; 1]]).^2;
-R_g_imu = diag(imu_acc_rsm*[1; 1; 1]).^2;
-R_pvq_gnns = diag([gps_pos_local_rsm*[1; 1; 1]; gps_vel_local_rsm*[1; 1; 1]; gps_quat_rsm*[1; 1; 1; 1]]).^2;
-R_v_unit_gnns = diag(gps_vel_local_rsm*[1; 1; 1]).^2;
-
-Q = diag([1e-4*[1; 1; 1];    1e-4*[1; 1; 1];    1e-8*[1; 1; 1; 1]]);
-P0 = 12*Q;
-
-R_att = diag(1e-6*[1 1 1 1]);
-
-sqrtR_pv_gnns = chol(R_pv_gnns,'lower');
-sqrtR_pvq_gnns = chol(R_pvq_gnns,'lower');
-sqrtR_g_imu = chol(R_g_imu,'lower');
-sqrtR_v_unit_gnns= chol(R_v_unit_gnns,'lower');
-sqrtQ = chol(Q,'lower');
-initial_sqrtP = chol(P0,'lower');
+%% scripts
+run('sensors_init')
+run('estimation_init')
 
 %% preproc
 curr_state = initial_state;
 curr_yaw = initial_yaw;
+curr_w = initial_w;
 curr_ctrl = initial_ctrl;
 est_state_curr = initial_est_state;
 sqrtP_curr = initial_sqrtP;
 
 
+%% sim
 t = 0;
 for i = 1:N
     
     i    
     
     %% actuators dyn modeling
-    next_ctrl = [1.0 ,-0.01];
+    next_ctrl = [1.0 ;-0.01*sin(t)];
     next_ctrl = process_control_input(curr_ctrl, next_ctrl, dt);
     
     %% wheel robot state evolution
     % state = [r v q]
     [next_state, next_yaw] = calculate_next_state(curr_state, curr_yaw, next_ctrl, grad_surf, dt);    
-    [a, w] = calculate_acc_rotrate(curr_state, next_state, dt);
-    
+    [next_a, next_w] = calculate_acc_rotrate(curr_state, next_state, dt);
+    next_w_dot = (next_w - curr_w) / dt;
     
     %% full state = [r v a q w]
-    full_state_curr = [next_state(1:6);a;next_state(7:10);w]; 
+    full_state_curr = [next_state(1:6);next_a;next_state(7:10);next_w; next_w_dot]; 
 
     %% mes_state
     mes_state_curr = mes_state_from_full_state(...
-        full_state_curr, gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, imu_acc_rsm, imu_rot_vel_rsm);
+        full_state_curr, gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, imu_acc_rsm, imu_rot_vel_rsm, imu_attachment_r);
      
     %% estimation, X = [r v q]
     a_mes = mes_state_curr(7:9);
@@ -136,19 +117,20 @@ for i = 1:N
 %     end
 %     
 %     
-%     %% postproc
+    %% sim next step
     curr_ctrl = next_ctrl;
     curr_state = next_state;
     curr_yaw = next_yaw;
+    curr_w = next_w;
     est_state_curr = est_state_next;
     sqrtP_curr = sqrtP_next;
-%     
+    t = t + dt;
+    
+    %% save
     est_states(:, i) = est_state_curr;
     act_states(:, i) = full_state_curr;
     mes_states(:, i) = mes_state_curr;
     sqrtP_diag(:,i) = diag(sqrtP_next);
-
-t = t + dt;
 
 end
 
