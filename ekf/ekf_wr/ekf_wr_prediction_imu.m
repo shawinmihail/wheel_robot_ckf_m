@@ -24,12 +24,15 @@ E33 = eye(3, 3);
 Mvq = quat_rot_jacob(q(1),q(2),q(3),q(4),a_mes(1),a_mes(2),a_mes(3));
 % q_dot = 0.5 * quatMultiply(q, qw);
 Mqq = poison_eq_jacob(q(1),q(2),q(3),q(4),w_mes(1),w_mes(2),w_mes(3));
+Mvw = ...
 
 
 %%
-F = [O33 E33 O34; 
-     O33 O33 Mvq;
-     O43 O43 Mqq];
+F = [O33 E33 O33 O34 O33; 
+     O33 O33 E33 Mvq Mvw;
+     O33 O33 O33 O34 O33;
+     O43 O43 O43 Mqq Mqw
+     O33 o33 O33 O34 O33];
  
 I = eye(10);
 sqrtP = tria([(I+F*dt) * sqrtP, sqrtQ], 10);

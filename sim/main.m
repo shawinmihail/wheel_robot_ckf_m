@@ -31,11 +31,8 @@ initial_v = [0;0;0];
 initial_yaw = pi/3;
 initial_q = calc_q_full(grad_surf, initial_r, initial_yaw);
 initial_w = [0;0;0];
-
 initial_state = [initial_r; initial_v; initial_q];
 initial_ctrl = [0; 0];
-initial_est_state = initial_state;
-
 
 %% scripts
 run('sensors_init')
