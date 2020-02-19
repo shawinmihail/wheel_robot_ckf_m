@@ -1,18 +1,24 @@
-function [X, sqrtP] = ekf_wr_prediction_imu(X, sqrtP, sqrtQ, a_mes, w_mes, dt)
-% X [r v q]
+function [X, sqrtP] = ekf_wr_prediction_imu(X, sqrtP, sqrtQ, a_mes, w_mes, imu_attachment_r, dt)
 
-%% X
+%% X [r v a q w]
 g = [0;0;-10];
-q = X(7:10);
-r_dot = X(4:6);
-v_dot = quatRotate(q, a_mes) + g;
+r0 = X(1:3);
+v0 = X(4:6);
+q0 = X(10:13);
+w0 = w_mes;
+a0 = quatRotate(q0, a_mes + cross(w0, cross(imu_attachment_r,w0))) + g;
 
-qw = [0;w_mes];
-q_dot = 0.5 * quatMultiply(q, qw);
 
-X_dot = [r_dot; v_dot; q_dot];
-X = X + X_dot * dt;
-X(7:10) = X(7:10) / norm(X(7:10));
+%% X next
+qw0 = [0;w0];
+r_next = r0 + v0 * dt;
+v_next = v0 + a0 * dt;
+a_next = a0;
+q_next = q0 +  0.5 * quatMultiply(q0, qw0) * dt;
+% q_next = q_next / norm(q_next);
+w_next = w0;
+
+X = [r_next; v_next; a_next; q_next; w_next];
 
 %% P
 O33 = zeros(3, 3);
@@ -20,22 +26,21 @@ O34 = zeros(3, 4);
 O43 = zeros(4, 3);
 E33 = eye(3, 3);
 
-% v_dot = quatRotate(q, a_mes) + g;
-Mvq = quat_rot_jacob(q(1),q(2),q(3),q(4),a_mes(1),a_mes(2),a_mes(3));
-% q_dot = 0.5 * quatMultiply(q, qw);
-Mqq = poison_eq_jacob(q(1),q(2),q(3),q(4),w_mes(1),w_mes(2),w_mes(3));
-Mvw = ...
-
-
+Maq = M_rddot_dq_fcn(...
+    q0(1),q0(2),q0(3),q0(4),a_mes(1),a_mes(2),a_mes(3),imu_attachment_r(1),imu_attachment_r(2),imu_attachment_r(3),w_mes(1),w_mes(2),w_mes(3));
+Maw = M_rddot_dw_fcn(...
+    w0(1),w0(2),w0(3),q0(1),q0(2),q0(3),q0(4),imu_attachment_r(1),imu_attachment_r(2),imu_attachment_r(3));
+Mqq = M_qdot_dq_fcn(q0(1),q0(2),q0(3),q0(4),w0(1),w0(2),w0(3));
+Mqw = M_qdot_dw_fcn(w0(1),w0(2),w0(3),q0(1),q0(2),q0(3),q0(4));
 %%
 F = [O33 E33 O33 O34 O33; 
-     O33 O33 E33 Mvq Mvw;
+     O33 O33 E33 Maq Maw;
      O33 O33 O33 O34 O33;
      O43 O43 O43 Mqq Mqw
-     O33 o33 O33 O34 O33];
+     O33 O33 O33 O34 O33];
  
-I = eye(10);
-sqrtP = tria([(I+F*dt) * sqrtP, sqrtQ], 10);
+I = eye(16);
+sqrtP = tria([(I+F*dt) * sqrtP, sqrtQ], 16);
 
 end
 

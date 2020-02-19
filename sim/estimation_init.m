@@ -1,4 +1,4 @@
-initial_est_state = [initial_state(1:6);[0;0;0];initial_state(7:9);[0;0;0]];
+initial_est_state = [initial_state(1:6);[0;0;0];initial_state(7:10);[0;0;0]];
 
 R_pv_gnns = diag([gps_pos_local_rsm*[1; 1; 1]; gps_vel_local_rsm*[1; 1; 1]]).^2;
 R_g_imu = diag(imu_acc_rsm*[1; 1; 1]).^2;

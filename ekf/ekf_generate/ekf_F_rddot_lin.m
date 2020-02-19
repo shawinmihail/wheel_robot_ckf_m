@@ -15,3 +15,4 @@ rddot_q_j = jacobian(rddot_q, q)
 rddot_w_j = jacobian(rddot_w, w)
 
 matlabFunction(rddot_q_j,'file','ekf/ekf_routins/M_rddot_dq_fcn.m')
+matlabFunction(rddot_w_j,'file','ekf/ekf_routins/M_rddot_dw_fcn.m')
