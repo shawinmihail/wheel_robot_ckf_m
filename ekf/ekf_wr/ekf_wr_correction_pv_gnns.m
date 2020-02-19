@@ -30,8 +30,6 @@ E33 = eye(3, 3);
 Zrq = Z_rgnns_dq_fcn(q(1),q(2),q(3),q(4),gps_attachment_r(1),gps_attachment_r(2),gps_attachment_r(3));
 Zvq = Z_vgnns_dq_fcn(q(1),q(2),q(3),q(4),gps_attachment_r(1),gps_attachment_r(2),gps_attachment_r(3),w(1),w(2),w(3));
 Zvw = Z_vgnns_dw_fcn(w(1),w(2),w(3),gps_attachment_r(1),gps_attachment_r(2),gps_attachment_r(3),q(1),q(2),q(3),q(4));
-
-% pos vel stright corrections pos = pos_mes, vel = vel_mes
 H = [E33 O33 O33 Zrq O33;
      O33 E33 O33 Zvq Zvw];
 

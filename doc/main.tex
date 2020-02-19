@@ -101,7 +101,7 @@ e^{\textit{gyr}} = e_{0}^{\textit{gyr}} + \epsilon^{\textit{gyr}}
 \subsection{Арпиори оценка}
 Априори оценка ускорения и угловой скорости производится на основе показаний датчиков ускорения и угловой скорости. Остальные компоненты оцениваются при помощи интегрирования.
 Зная калибровочные параметры датчика и делая некоторые упрощения для уравнения \eqref{eq:imu_mes}, будем считать, что
-\begin{align} 
+\begin{align} \label{eq:rddot_i_simle}
 \begin{split}
 &\ddot{r}_{I} = {q}_{BI} \circ  [a^{imu}_{calib} + (\Omega_B \times (\delta r^{imu}_B \times \Omega_B))] \circ \tilde{q}_{BI} + g_I
 \end{split}
@@ -159,5 +159,15 @@ O_{3x3} & E_{3x3} & O_{3x3} & Z^v_q & Z^v_{\Omega}
 & = q_{IB} \circ (|v_I| \quad 0 \quad 0)^T \circ \tilde{q}_{IB} + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB}
 \end{split}
 \end{align}
-!!!отсюда можно сделать второй вариант коррекции!!!
+!!!используем это для коррекции!!!
+
+\subsection{Коррекция IMU ориентации}
+Используя уравнение \eqref{eq:rddot_i_simle}, можно записать
+\begin{align} 
+\begin{split}
+&a^{imu}_{calib}  = \tilde{q}_{BI} \circ (\ddot{r}_{I} - g_I) \circ q_{BI} - \Omega_B \times (\delta r^{imu}_B \times \Omega_B) 
+\end{split}
+\end{align}
+!!!используем это для коррекции!!!
+
 \end{document}

@@ -17,7 +17,7 @@ rng(seed);
 
 % loop
 dt = 1e-2;
-N = 50000;
+N = 30000;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
@@ -54,7 +54,7 @@ for i = 1:N
     i    
     
     %% actuators dyn modeling
-    next_ctrl = [1.0 ;-0.01*sin(t)];
+    next_ctrl = [1.0 ;-0.05*sin(t)];
     next_ctrl = process_control_input(curr_ctrl, next_ctrl, dt);
     
     %% wheel robot state evolution
@@ -78,15 +78,17 @@ for i = 1:N
     [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, sqrtQ, a_mes, w_mes, imu_attachment_r, dt);
 
     %% correct pos vel gnns
-    if (mod(i, 5) > -1)
-        if rand() > -1
-            Z = mes_state_curr(1:6);
-            [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
+    if i > -1
+        if (mod(i, 5) == 1)
+            if rand() > -1
+                Z = mes_state_curr(1:6);
+                [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
+            end
         end
     end
-%     
+    
     %% correct vel abs and dir gnns
-    if i > 500
+    if i > -1
         if rand() > -1
             v = mes_state_curr(4:6);
             nv = norm(v);
@@ -97,22 +99,22 @@ for i = 1:N
             end
         end
     end
+        
+    %% correct att g imu
+    if i < -1
+        if rand() > -1
+            Z = mes_state_curr(7:9);
+            [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu, imu_attachment_r);
+        end
+    end
     
-%     %% correct pos vel att gnns
+    %     %% correct pos vel att gnns
 %     if (mod(i, 150) == 99)
 %         if rand() > 0.1
 %             Z = [mes_state_curr(1:6); mes_state_curr(10:13)];
 % %             [est_state_next, sqrtP_next] = ekf_wr_correction_pvq_gnns(est_state_next, sqrtP_next, Z, sqrtR_pvq_gnns);
 %         end
 %     end
-    
-    %% correct att g imu
-    if i > 1000
-        if rand() > 0.33
-            Z = mes_state_curr(7:9);
-            [est_state_next, sqrtP_next] = ekf_wr_correction_g_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
-        end
-    end
     
     
     %% sim next step
