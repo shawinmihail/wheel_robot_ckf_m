@@ -16,8 +16,8 @@ seed = 200;
 rng(seed);
 
 % loop
-dt = 1e-3;
-N = 10000;
+dt = 1e-2;
+N = 50000;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
@@ -76,28 +76,28 @@ for i = 1:N
     
     %% predict with imu
     [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, sqrtQ, a_mes, w_mes, imu_attachment_r, dt);
-%     return
 
-%     %% correct pos vel gnns
-%     if (mod(i, 5) == 4)
-%         if rand() > 0.0
-%             Z = mes_state_curr(1:6);
-%             [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns);
-%         end
-%     end
+    %% correct pos vel gnns
+    if (mod(i, 5) > -1)
+        if rand() > -1
+            Z = mes_state_curr(1:6);
+            [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
+        end
+    end
 %     
-%     %% correct att by vel dir
-%     if i > 1000
-%         if rand() > 0.33
-%             v = mes_state_curr(4:6);
-%             nv = norm(mes_state_curr(4:6));
-%             if nv > 0.5
-%                 Z = v / nv;
-%                 [est_state_next, sqrtP_next] = ekf_wr_correction_v_unit_gnns(est_state_next, sqrtP_next, Z, sqrtR_v_unit_gnns);
-%             end
-%         end
-%     end
-%     
+    %% correct vel abs and dir gnns
+    if i > 500
+        if rand() > -1
+            v = mes_state_curr(4:6);
+            nv = norm(v);
+            if nv > 0.2
+                Z = v;
+                [est_state_next, sqrtP_next] = ...
+                    ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, Z, sqrtR_v_ad_gnns, gps_attachment_r);
+            end
+        end
+    end
+    
 %     %% correct pos vel att gnns
 %     if (mod(i, 150) == 99)
 %         if rand() > 0.1
@@ -105,16 +105,16 @@ for i = 1:N
 % %             [est_state_next, sqrtP_next] = ekf_wr_correction_pvq_gnns(est_state_next, sqrtP_next, Z, sqrtR_pvq_gnns);
 %         end
 %     end
-%     
-%     %% correct att g imu
-%     if i > 1000
-%         if rand() > 0.33
-%             Z = mes_state_curr(7:9);
-%             [est_state_next, sqrtP_next] = ekf_wr_correction_g_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
-%         end
-%     end
-%     
-%     
+    
+    %% correct att g imu
+    if i > 1000
+        if rand() > 0.33
+            Z = mes_state_curr(7:9);
+            [est_state_next, sqrtP_next] = ekf_wr_correction_g_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
+        end
+    end
+    
+    
     %% sim next step
     curr_ctrl = next_ctrl;
     curr_state = next_state;

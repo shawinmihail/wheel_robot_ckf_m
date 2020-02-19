@@ -84,9 +84,11 @@ e^{\textit{gyr}} = e_{0}^{\textit{gyr}} + \epsilon^{\textit{gyr}}
 
 \subsection{Система глобальной навигации}
 Обозначим $\delta r^{gnns}$ смещение принимающей антенны систем глобальной навигации. Тогда измерения положения и скорости связаны с положением начала собственной системы координат как
-\begin{align} 
+\begin{align} \label{eq:gnns_mes_model}
+\begin{split}
 &r_{gnns} = r_I + q_{IB} \circ \delta r^{gnns}_B \circ \tilde{q}_{IB} \\
-&v_{gnns} = v_I + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB} \\
+&v_{gnns} = v_I + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB}
+\end{split}
 \end{align}
 
 \section{Оценка состояния}
@@ -131,7 +133,31 @@ O_{3x3} & O_{3x3} & O_{3x3} & O_{3x4} & O_{3x3}
 \end{split}
 \end{align}
 !!!Здесь $M$ -- матрицы, которые нужно описать здесь.!!!
-\subsection{Коррекция}
-Для коррекции будем использовать показания систем глобальной навигации, которые позволяют оценить положение и скорость антенны.
 
+\subsection{Коррекция GNNS положения и скорости}
+Для коррекции используются показания систем глобальной навигации, которые позволяют оценить положение и скорость антенны
+\begin{align}
+z_{gnns} = (r_{gnns} \quad v_{gnns})^T.
+\end{align}
+Используя уравнения \eqref{eq:gnns_mes_model} можем записать 
+\begin{align}
+\begin{split}
+&H_{gnns} = \frac{h_{gnns}}{\delta z_{gnns}} =  \\
+&\begin{pmatrix}
+E_{3x3} & O_{3x3} & O_{3x3} & Z^r_q & O_{3x3}   \\
+O_{3x3} & E_{3x3} & O_{3x3} & Z^v_q & Z^v_{\Omega}
+\end{pmatrix}
+\end{split}
+\end{align}
+!!!Здесь $Z$ -- матрицы, которые нужно описать здесь.!!!
+
+\subsection{Коррекция GNNS абсолютной величины и направления скорости}
+Используя уравнения модели (\ref{eq:model_velocity}-\ref{eq:model_rot_velocity}) и уравнения для показаний GNNS датчика \eqref{eq:gnns_mes_model} можно записать
+\begin{align}
+\begin{split}
+&v_{gnns} = v_I + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB} = \\
+& = q_{IB} \circ (|v_I| \quad 0 \quad 0)^T \circ \tilde{q}_{IB} + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB}
+\end{split}
+\end{align}
+!!!отсюда можно сделать второй вариант коррекции!!!
 \end{document}
