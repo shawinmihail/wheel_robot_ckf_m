@@ -22,8 +22,9 @@ assume([q; w; v; r; dr], 'real')
 % matlabFunction(vgnns_w_j,'file','ekf/ekf_routins/Z_vgnns_dw_fcn.m')
 
 %% v_abs_and_dir
-vgnns_q(q) = quatRotate(q, [norm(v);0;0]) + quatRotate(q, cross(w, dr));
-vgnns_v(v) = quatRotate(q, [norm(v);0;0]) + quatRotate(q, cross(w, dr));
+ex = [1;0;0];
+vgnns_q(q) = quatRotate(q, ex * norm(v)) + quatRotate(q, cross(w, dr));
+vgnns_v(v) = quatRotate(q, ex * norm(v)) + quatRotate(q, cross(w, dr));
 
 vgnns_q_j = jacobian(vgnns_q, q);
 vgnns_v_j = jacobian(vgnns_v, v);

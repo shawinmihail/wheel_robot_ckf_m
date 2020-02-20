@@ -5,5 +5,5 @@ gps_quat_rsm = 0.001;
 gps_attachment_r = [0.3; 0.3; 0.9];
 % imu
 imu_acc_rsm = 0.05;
-imu_rot_vel_rsm = 0.01;
+imu_rot_vel_rsm = 0.001;
 imu_attachment_r = [0.2; -0.1; 0.1];

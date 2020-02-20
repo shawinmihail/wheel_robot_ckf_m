@@ -16,8 +16,8 @@ seed = 200;
 rng(seed);
 
 % loop
-dt = 1e-2;
-N = 30000;
+dt = 1e-3;
+N = 9999;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
@@ -54,7 +54,7 @@ for i = 1:N
     i    
     
     %% actuators dyn modeling
-    next_ctrl = [1.0 + sin(t / 200) ; sin(2*pi*randn())];
+    next_ctrl = [1 + abs(1 * sin(t / 200)) ; 0.01 - 0.001*t];
     next_ctrl = process_control_input(curr_ctrl, next_ctrl, dt);
     
     %% wheel robot state evolution
@@ -76,17 +76,10 @@ for i = 1:N
     
     %% predict with imu
     [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, sqrtQ, a_mes, w_mes, imu_attachment_r, dt);
-    
-%     %% custom correct
-%     if (mod(i, 2) == 1)
-%         Z = mes_state_curr(1:9);
-%         sqrtR_custom = diag([gps_pos_local_rsm*[1; 1; 1]; gps_vel_local_rsm*[1; 1; 1]; imu_acc_rsm*[1; 1; 1]]).^2;
-%         [est_state_next, sqrtP_next] = ekf_wr_correction_custom(est_state_next, sqrtP_next, Z, sqrtR_custom, gps_attachment_r);
-%     end
 
     %% correct pos vel gnns
     if i > -1
-        if (mod(i, 5) == 1)
+        if (mod(i, 50) == 1)
             if rand() > -1
                 Z = mes_state_curr(1:6);
                 [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
@@ -96,7 +89,7 @@ for i = 1:N
     
     %% correct vel abs and dir gnns
     if i > -1
-        if (mod(i, 5) == 2)
+        if (mod(i, 50) == 1)
             if rand() > -1
                 v = mes_state_curr(4:6);
                 nv = norm(v);
@@ -111,7 +104,7 @@ for i = 1:N
         
     %% correct att g imu
     if i < -1
-        if (mod(i, 5) == 4)
+        if (mod(i, 50) == 1)
             if rand() > -1
                 Z = mes_state_curr(7:9);
                 [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu, imu_attachment_r);
@@ -119,13 +112,13 @@ for i = 1:N
         end
     end
     
-        %% correct pos vel att gnns
-    if (mod(i, 150) == 99)
-        if rand() > 0.1
-            Z = [mes_state_curr(1:6); mes_state_curr(10:13)];
+%         %% correct pos vel att gnns
+%     if (mod(i, 150) == 99)
+%         if rand() > 0.1
+%             Z = [mes_state_curr(1:6); mes_state_curr(10:13)];
 %             [est_state_next, sqrtP_next] = ekf_wr_correction_pvq_gnns(est_state_next, sqrtP_next, Z, sqrtR_pvq_gnns);
-        end
-    end
+%         end
+%     end
     
     
     %% sim next step
