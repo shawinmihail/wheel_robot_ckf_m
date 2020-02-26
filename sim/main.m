@@ -17,7 +17,7 @@ rng(seed);
 
 % loop
 dt = 1e-3;
-N = 49999;
+N = 20;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
@@ -149,6 +149,7 @@ for i = 1:N
     timeline(i) = t;
 
 end
+
 
 
 
