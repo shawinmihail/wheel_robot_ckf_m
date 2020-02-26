@@ -1,4 +1,4 @@
-function [X, sqrtP] = ekf_wr_correction_custom(X, sqrtP, Z, sqrtR, gps_attachment_r, imu_attachment_r)
+function [X, sqrtP] = ekf_wr_correction_custom(X, sqrtP, Z, sqrtR, gps_attachment_r)
 
 n = length(X);
 m = length(Z);
@@ -19,7 +19,7 @@ ex = [1;0;0];
 Z_r = r + quatRotate(q, gps_attachment_r);
 Z_v1 = quatRotate(q, ex * norm(v)) + quatRotate(q, cross(w, gps_attachment_r));
 Z_v2 = v + quatRotate(q, cross(w, gps_attachment_r));
-Z_a = quatRotate(quatDual(q), a - g) - cross(w, cross(imu_attachment_r, w));
+Z_a = quatRotate(quatDual(q), a - g);
 
 Z_x = [Z_r; Z_v1; Z_v2; Z_a];
 dz = Z - Z_x;
@@ -38,17 +38,15 @@ Zvv1 = Z_vgnns_ad_dv_fcn(v(1),v(2),v(3),q(1),q(2),q(3),q(4));
 Zvw1 = Z_vgnns_dw_fcn(w(1),w(2),w(3),gps_attachment_r(1),gps_attachment_r(2),gps_attachment_r(3),q(1),q(2),q(3),q(4));
 
 Zvq2 = Z_vgnns_dq_fcn(q(1),q(2),q(3),q(4),gps_attachment_r(1),gps_attachment_r(2),gps_attachment_r(3),w(1),w(2),w(3));
-Zvv2 = E33;
 Zvw2 = Z_vgnns_dw_fcn(w(1),w(2),w(3),gps_attachment_r(1),gps_attachment_r(2),gps_attachment_r(3),q(1),q(2),q(3),q(4));
 
 Zaa = Z_aimu_da_fcn(a(1),a(2),a(3),q(1),q(2),q(3),q(4));
 Zaq = Z_aimu_dq_fcn(q(1),q(2),q(3),q(4),a(1),a(2),a(3),g(1),g(2),g(3));
-Zaw = Z_aimu_dw_fcn(w(1),w(2),w(3),imu_attachment_r(1),imu_attachment_r(2),imu_attachment_r(3));
 
 H = [E33 O33  O33 Zrq O33;
      O33 Zvv1 O33 Zvq1 Zvw1;
-     O33 Zvv2 O33 Zvq2 Zvw2;
-     O33 O33  Zaa Zaq Zaw];
+     O33  E33 O33 Zvq2 Zvw2;
+     O33  O33  Zaa Zaq O33];
  
  %% ordinary K, P
 P = sqrtP * sqrtP';
