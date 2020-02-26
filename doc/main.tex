@@ -272,13 +272,14 @@ z_3 = a^{imu}_{calib}
 \begin{split}
 &H_3 =
 \begin{pmatrix}
-O_{3x3} & O_{3x3} & O_{3x3} & \alpha^a_q & O_{3x3},
+O_{3x3} & O_{3x3} & \alpha^{\ddot{r}}_a & \alpha^a_q & O_{3x3},
 \end{pmatrix}
 \end{split}
 \end{align}
 где
 \begin{align}
 \begin{split}
+&\alpha^{\ddot{r}}_a = [\tilde{q}_{IB} \circ (\ddot{r}_{I} - g_I) \circ q_{IB}]_{\delta \ddot{r}_I} \\
 &\alpha^a_q = [\tilde{q}_{IB} \circ (\ddot{r}_{I} - g_I) \circ q_{IB}]_{\delta {q}_{IB}}
 \end{split}
 \end{align}

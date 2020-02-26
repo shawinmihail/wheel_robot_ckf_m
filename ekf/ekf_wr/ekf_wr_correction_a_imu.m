@@ -1,4 +1,4 @@
-function [X, sqrtP] = ekf_wr_correction_a_imu(X, sqrtP, Z, sqrtR, imu_attachment_r)
+function [X, sqrtP] = ekf_wr_correction_a_imu(X, sqrtP, Z, sqrtR)
 n = length(X);
 m = length(Z);
 
@@ -12,8 +12,7 @@ w = X(14:16);
 
 %% mes model
 % Z [a_imu]
-% a_imu = quatRotate(quatDual(q), a - g) - cross(w, cross(dr, w));
-Z_x = quatRotate(quatDual(q), a - g) - cross(w, cross(imu_attachment_r, w));
+Z_x = quatRotate(quatDual(q), a - g);
 dz = Z - Z_x;
 
 %% H
@@ -25,8 +24,7 @@ E33 = eye(3, 3);
 
 Zaa = Z_aimu_da_fcn(a(1),a(2),a(3),q(1),q(2),q(3),q(4));
 Zaq = Z_aimu_dq_fcn(q(1),q(2),q(3),q(4),a(1),a(2),a(3),g(1),g(2),g(3));
-Zaw = Z_aimu_dw_fcn(w(1),w(2),w(3),imu_attachment_r(1),imu_attachment_r(2),imu_attachment_r(3));
-H = [O33 O33 Zaa Zaq Zaw];
+H = [O33 O33 Zaa Zaq O33];
 
 %% square-root K, H
 M = tria([sqrtR, H * sqrtP; zeros(n, m), sqrtP], m + n);

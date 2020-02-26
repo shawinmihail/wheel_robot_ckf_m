@@ -17,7 +17,7 @@ rng(seed);
 
 % loop
 dt = 1e-2;
-N = 20000;
+N = 19999;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
@@ -79,7 +79,7 @@ for i = 1:N
     w_mes = mes_state_curr(14:16);
     
     %% predict with imu
-    [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, Q, a_mes, w_mes, imu_attachment_r, dt);
+    [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, Q, a_mes, w_mes, dt);
 
     %% correct pos vel gnns
     if i > -1
@@ -111,12 +111,12 @@ for i = 1:N
         if (mod(i, 10) == 1)
             if rand() > -1
                 Z = mes_state_curr(7:9);
-                [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu, imu_attachment_r);
+                [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
             end
         end
     end
     
-%         %% correct pos vel att gnns
+%     %% correct pos vel att gnns
 %     if (mod(i, 150) == 99)
 %         if rand() > 0.1
 %             Z = [mes_state_curr(1:6); mes_state_curr(10:13)];

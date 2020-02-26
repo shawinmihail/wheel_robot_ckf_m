@@ -7,6 +7,7 @@ g = sym('g', [3, 1]);
 w = sym('w', [3, 1]);
 dr = sym('dr', [3, 1]);
 assume([q; a; g; w; dr], 'real')
+dr = zeros(3,1); % imu is target point now
 
 %% 
 imu_a_q(q) = quatRotate(quatDual(q), a - g) - cross(w, cross(dr, w));
