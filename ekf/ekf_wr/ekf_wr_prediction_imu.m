@@ -15,7 +15,7 @@ r_next = r0 + v0 * dt;
 v_next = v0 + a0 * dt;
 a_next = a0;
 q_next = q0 +  0.5 * quatMultiply(q0, qw0) * dt;
-% q_next = q_next / norm(q_next);
+q_next = q_next / norm(q_next);
 w_next = w0;
 
 X = [r_next; v_next; a_next; q_next; w_next];

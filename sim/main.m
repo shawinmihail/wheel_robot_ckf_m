@@ -17,7 +17,7 @@ rng(seed);
 
 % loop
 dt = 1e-3;
-N = 9999;
+N = 20000;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
@@ -54,7 +54,11 @@ for i = 1:N
     i    
     
     %% actuators dyn modeling
-    next_ctrl = [1 + abs(1 * sin(t / 200)) ; 0.01 - 0.001*t];
+    if t < 3
+        next_ctrl = [0 ; 0.01 - 0.001*t];
+    else
+        next_ctrl = [1 ; 0];   
+    end
     next_ctrl = process_control_input(curr_ctrl, next_ctrl, dt);
     
     %% wheel robot state evolution
@@ -89,11 +93,11 @@ for i = 1:N
     
     %% correct vel abs and dir gnns
     if i > -1
-        if (mod(i, 50) == 1)
+        if (mod(i, 10) == 1)
             if rand() > -1
                 v = mes_state_curr(4:6);
                 nv = norm(v);
-                if nv > 0.2
+                if nv > -1
                     Z = v;
                     [est_state_next, sqrtP_next] = ...
                         ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, Z, sqrtR_v_ad_gnns, gps_attachment_r);
@@ -104,7 +108,7 @@ for i = 1:N
         
     %% correct att g imu
     if i < -1
-        if (mod(i, 50) == 1)
+        if (mod(i, 10) == 1)
             if rand() > -1
                 Z = mes_state_curr(7:9);
                 [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu, imu_attachment_r);
@@ -138,15 +142,6 @@ for i = 1:N
     timeline(i) = t;
 
 end
-
-%% plot
-
-
-
-
-% figure
-% hold on
-% plot(aw(6, :))
 
 
 
