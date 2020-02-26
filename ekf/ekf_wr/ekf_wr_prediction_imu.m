@@ -1,4 +1,4 @@
-function [X, sqrtP] = ekf_wr_prediction_imu(X, sqrtP, sqrtQ, a_mes, w_mes, imu_attachment_r, dt)
+function [X, sqrtP] = ekf_wr_prediction_imu(X, sqrtP, Q, a_mes, w_mes, imu_attachment_r, dt)
 
 %% X [r v a q w]
 g = [0;0;-10];
@@ -40,7 +40,7 @@ F = [O33 E33 O33 O34 O33;
      O33 O33 O33 O34 O33];
  
 I = eye(16);
-sqrtP = tria([(I+F*dt) * sqrtP, sqrtQ], 16);
+sqrtP = tria([(I+F*dt) * sqrtP, Q * sqrt(dt)], 16);
 
 end
 

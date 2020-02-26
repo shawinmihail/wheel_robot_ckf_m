@@ -16,7 +16,7 @@ seed = 200;
 rng(seed);
 
 % loop
-dt = 1e-3;
+dt = 1e-2;
 N = 20000;
 
 % surf
@@ -79,7 +79,7 @@ for i = 1:N
     w_mes = mes_state_curr(14:16);
     
     %% predict with imu
-    [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, sqrtQ, a_mes, w_mes, imu_attachment_r, dt);
+    [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, Q, a_mes, w_mes, imu_attachment_r, dt);
 
     %% correct pos vel gnns
     if i > -1

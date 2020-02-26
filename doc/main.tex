@@ -9,7 +9,7 @@
 \begin{document}
 \section{Модель движения}
 
-Положение робота описывается в некоторой локальной системе отсчета $I$, ось $Z_I$ направлена против гравитации, оси $X_I$ и $Y_I$ дополняют систему до правой тройки.
+Положение робота описывается положением начала подвижной системы координат $B$ в некоторой локальной системе координат $I$, ось $Z_I$ направлена против гравитации, оси $X_I$ и $Y_I$ дополняют систему до правой тройки.
 
 Ориентация робота представлена кватернионом $q$ таким образом, что произвольный вектор, записанный в собственных осях $B$ робота проецируется в локальную систему как
 $r_I = q_{IB} \circ r_B \circ \tilde{q}_{IB}$
@@ -49,25 +49,27 @@ $r_B = q_{BM} \circ r_M \circ \tilde{q}_{BM}.$
 \begin{align} 
 \begin{split} \label{eq:imu_mes}
 &q_{BM} \circ (a^{imu} - e^{imu}) \circ \tilde{q}_{BM} = \\
-&\quad \quad \quad {q}_{BI} \circ (\ddot{r}_{I} - g_I) \circ \tilde{q}_{BI}
+&\quad \quad \quad \tilde{q}_{IB} \circ (\ddot{r}_{I} - g_I) \circ {q}_{IB}
  - {\delta r^{imu}_B}  \times \dot{\Omega}_B
  - \Omega_B \times (\delta r^{imu}_B \times \Omega_B)
 \end{split}
-\\
-&q_{BI} = \tilde{q}_{IB}
 \end{align}
 
 Будем считать, что ошибка измерений акселерометра складывается из постоянной компоненты  и белого шума
 \begin{align} 
 e^{imu} = e_{0}^{imu} + \epsilon^{imu}
 \end{align}
-
 Смещение и поворот собственных осей, а также постоянную компоненту ошибки измерений $e_{0}^{imu}$ можно найти с помощью калибровки.
 
-\subsection{Датчик угловой скорости}
-Обозначим $\delta r^{\textit{gyr}}$ смещение гироскопа,  $q_{BG}$ -- ориентацию собственных осей гироскопа относительно осей $B$.
+Удобно совместить начало собственной системы $B$ с точкой закрепления акселерометра. Тогда положение любой другой точки робота будет определяться текущей ориентацией робота и относительным смещением этой точки. Тогда, $||\delta r^{imu}_B||$ = 0, уравнение \eqref{eq:imu_mes} может быть записано в виде
+\begin{align} 
+\begin{split} \label{eq:imu_mes_simled}
+&q_{BM} \circ (a^{imu} - e^{imu}) \circ \tilde{q}_{BM} = \tilde{q}_{IB} \circ (\ddot{r}_{I} - g_I) \circ {q}_{IB}
+\end{split}
+\end{align}
 
-Тогда, показания акселерометра $w^{\textit{gyr}}$ складываются из угловой скорости сенсора, (может быть еще чего-то) и ошибки измерений $e^{\textit{gyr}}$.
+\subsection{Датчик угловой скорости}
+Обозначим $\delta r^{\textit{gyr}}$ смещение гироскопа,  $q_{BG}$ -- ориентацию собственных осей гироскопа относительно осей $B$. Тогда, показания акселерометра $w^{\textit{gyr}}$ складываются из угловой скорости сенсора, (может быть еще чего-то) и ошибки измерений $e^{\textit{gyr}}$.
 
 \begin{align} 
 &q_{BG} \circ (w^{\textit{gyr}} - e^{\textit{gyr}}) \circ \tilde{q}_{BG} = 
@@ -83,7 +85,7 @@ e^{\textit{gyr}} = e_{0}^{\textit{gyr}} + \epsilon^{\textit{gyr}}
 Смещение и поворот собственных осей, а также постоянную компоненту ошибки измерений $e_{0}^{\textit{gyr}}$ можно найти с помощью калибровки.
 
 \subsection{Система глобальной навигации}
-Обозначим $\delta r^{gnns}$ смещение принимающей антенны систем глобальной навигации. Тогда измерения положения и скорости связаны с положением начала собственной системы координат как
+Обозначим $\delta r^{gnns}$ положение принимающей антенны системы глобальной навигации в $B$ . Тогда измерения положения и скорости связаны с положением начала собственной системы координат как
 \begin{align} \label{eq:gnns_mes_model}
 \begin{split}
 &r_{gnns} = r_I + q_{IB} \circ \delta r^{gnns}_B \circ \tilde{q}_{IB} \\
@@ -94,16 +96,70 @@ e^{\textit{gyr}} = e_{0}^{\textit{gyr}} + \epsilon^{\textit{gyr}}
 \section{Оценка состояния}
 Для оценки состояния используем алгоритм SR-EKF (квадратно-корневой расширенный фильтр Калмана). Вектор состояния составим из положения, скорости, ускорения, кватерниона ориентации и угловой скорости
 \begin{align} 
-&x = (r_I \quad \dot{r}_I \quad \ddot{r}_I \quad q_{BI} \quad \Omega_B)^T
+&x = (r_I \quad \dot{r}_I \quad \ddot{r}_I \quad q_{IB} \quad \Omega_B)
 \end{align}
-!!!Тут стоит описать алгоритм!!!
 
-\subsection{Арпиори оценка}
-Априори оценка ускорения и угловой скорости производится на основе показаний датчиков ускорения и угловой скорости. Остальные компоненты оцениваются при помощи интегрирования.
-Зная калибровочные параметры датчика и делая некоторые упрощения для уравнения \eqref{eq:imu_mes}, будем считать, что
-\begin{align} \label{eq:rddot_i_simle}
+Инициализация алгоритма включает в себя инициализацию начального состояния и его ковариации, определение ковариации шума измерений и модели
+\begin{align}
+&x_0 = x|_{k=0} \\
+&P_0 = P|_{k=0} \\
+&R = R|_{k=0} \\
+&Q = Q|_{k=0},
+\end{align} 
+а также разложение
+\begin{align}
+&\sqrt{P_0} \sqrt{P_0}^T= P_0
+&\sqrt{R_0} \sqrt{R_0}^T= R_0
+\end{align} 
+
+Алгоритм работает в два этапа. На первом этапе производится априори оценка следующего состояния на основе предыдущей оценки и модели движения
+\begin{align}
+x_k^- = f(x_{k-1}, \delta t).
+\end{align} 
+Квадратный корень ковариации априори оценки состояния определяется как
+\begin{align}
 \begin{split}
-&\ddot{r}_{I} = {q}_{BI} \circ  [a^{imu}_{calib} + (\Omega_B \times (\delta r^{imu}_B \times \Omega_B))] \circ \tilde{q}_{BI} + g_I
+&\sqrt{P^-_k} = \Big[ (I_n +  F_k \delta t) \sqrt{P_{k-1}} \quad Q \sqrt{\delta t}  \Big] \Theta,
+\end{split}
+\end{align}
+где $\Theta$ -- ортогональное преобразование, приводящее левую часть к нижнему треугольному виду. Здесь
+\begin{align}
+\begin{split}
+&F = \frac{f(x,t)}{\delta x}.
+\end{split}
+\end{align}
+
+На этапе коррекции находим скорректированную ковариацию оценки и измерений, а также коэффициент усиления
+\begin{align}
+\begin{pmatrix}
+&\sqrt{R_k} &0 \\
+&K_k &\sqrt{P_k}
+\end{pmatrix}
+=
+\begin{pmatrix}
+&\sqrt{R} &H_k \sqrt{P_k^-} \\
+&0 &\sqrt{P_k^-},
+\end{pmatrix} \Theta
+\end{align}
+где $H_k$ -- линеаризованная функция измерений  
+\begin{align}
+\begin{split}
+&H_k = \frac{\delta h(x_k^-)}{\delta x}
+\end{split}
+\end{align}
+Оценка состояния
+\begin{align}
+\begin{split}
+&x_k = x_k^- + K_k * (\sqrt{R_k})^{-1} \big(z_k - h(x_k^-)\big)
+\end{split}
+\end{align}
+
+\subsection{Априори оценка}
+Априори оценка производится интегрированием показаний акселерометра и гироскопа.
+Зная калибровочные параметры датчика и воспользовавшись уравнением \eqref{eq:imu_mes_simled}, запишем
+\begin{align} \label{eq:rddot_i_calib}
+\begin{split}
+&\ddot{r}_{I} = {q}_{IB} \circ  a^{imu}_{calib} \circ \tilde{q}_{IB} + g_I
 \end{split}
 \end{align}
 Здесь $a^{imu}_{calib}$ -- скорректированные на поворот и постоянную компоненту ошибки показания акселерометра
@@ -125,31 +181,53 @@ a^{imu}_{calib} = q_{BM} \circ (a^{imu} - e^{imu}_0) \circ \tilde{q}_{BM}
 &F = \frac{f(x,t)}{\delta x} = \\
 &\begin{pmatrix}
 O_{3x3} & E_{3x3} & O_{3x3} & O_{3x4} & O_{3x3}\\
-O_{3x3} & O_{3x3} & E_{3x3} & M^{\ddot{r}}_{\delta q} &M^{\ddot{r}}_{\delta \Omega}\\
+O_{3x3} & O_{3x3} & E_{3x3} & M^{\ddot{r}}_{\delta q} & O_{3x3}\\
 O_{3x3} & O_{3x3} & O_{3x3} & O_{3x4} & O_{3x3}\\
 O_{4x3} & O_{4x3} & O_{4x3} & M^{\dot{q}}_{\delta q} & M^{\dot{q}}_{\delta \Omega}\\
 O_{3x3} & O_{3x3} & O_{3x3} & O_{3x4} & O_{3x3}
 \end{pmatrix}
 \end{split}
 \end{align}
-!!!Здесь $M$ -- матрицы, которые нужно описать здесь.!!!
+Здесь
+\begin{align}
+\begin{split}
+&M^{\ddot{r}}_{\delta q} = [q_{BI} \circ  a^{imu}_{calib} \circ \tilde{q}_{BI} + g_I]_{\delta q_{BI}}
+\end{split}
+\end{align}
+\begin{align}
+\begin{split}
+&M^{\dot{q}}_{\delta q} = [\frac{1}{2} q_{IB} \circ \Omega_{B}]_{\delta q_{BI}}
+\end{split}
+\end{align}
+\begin{align}
+\begin{split}
+&M^{\dot{q}}_{\delta \Omega} = [\frac{1}{2} q_{IB} \circ \Omega_{B}]_{\delta \Omega_B}
+\end{split}
+\end{align}
 
 \subsection{Коррекция GNNS положения и скорости}
 Для коррекции используются показания систем глобальной навигации, которые позволяют оценить положение и скорость антенны
 \begin{align}
-z_{gnns} = (r_{gnns} \quad v_{gnns})^T.
+z_1 = (r_{gnns} \quad v_{gnns}).
 \end{align}
 Используя уравнения \eqref{eq:gnns_mes_model} можем записать 
 \begin{align}
 \begin{split}
-&H_{gnns} = \frac{h_{gnns}}{\delta z_{gnns}} =  \\
-&\begin{pmatrix}
+&H_1 =
+\begin{pmatrix}
 E_{3x3} & O_{3x3} & O_{3x3} & Z^r_q & O_{3x3}   \\
 O_{3x3} & E_{3x3} & O_{3x3} & Z^v_q & Z^v_{\Omega}
 \end{pmatrix}
 \end{split}
 \end{align}
-!!!Здесь $Z$ -- матрицы, которые нужно описать здесь.!!!
+Здесь
+\begin{align}
+\begin{split}
+&Z^r_q = [q_{IB} \circ \delta r^{gnns}_B \circ \tilde{q}_{IB}]_{\delta q_{IB}} \\
+&Z^v_q = [q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB}]_{\delta q_{IB}} \\
+&Z^v_\Omega = [q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB}]_{\delta \Omega_B}
+\end{split}
+\end{align}
 
 \subsection{Коррекция GNNS абсолютной величины и направления скорости}
 Используя уравнения модели (\ref{eq:model_velocity}-\ref{eq:model_rot_velocity}) и уравнения для показаний GNNS датчика \eqref{eq:gnns_mes_model} можно записать
@@ -159,15 +237,51 @@ O_{3x3} & E_{3x3} & O_{3x3} & Z^v_q & Z^v_{\Omega}
 & = q_{IB} \circ (|v_I| \quad 0 \quad 0)^T \circ \tilde{q}_{IB} + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB}
 \end{split}
 \end{align}
-!!!используем это для коррекции!!!
-
-\subsection{Коррекция IMU ориентации}
-Используя уравнение \eqref{eq:rddot_i_simle}, можно записать
-\begin{align} 
+Тогда, 
+\begin{align}
+z_2 = v_{gnns}.
+\end{align}
+\begin{align}
 \begin{split}
-&a^{imu}_{calib}  = \tilde{q}_{BI} \circ (\ddot{r}_{I} - g_I) \circ q_{BI} - \Omega_B \times (\delta r^{imu}_B \times \Omega_B) 
+&H_2 =
+\begin{pmatrix}
+O_{3x3} & \zeta^v_v & O_{3x3} & \zeta^v_q + Z^v_q & Z^v_{\Omega},
+\end{pmatrix}
 \end{split}
 \end{align}
-!!!используем это для коррекции!!!
+где
+\begin{align}
+\begin{split}
+&\zeta^v_v = [q_{IB} \circ (|v_I| \quad 0 \quad 0)^T \circ \tilde{q}_{IB}]_{\delta v_I} \\
+&\zeta^v_q = [q_{IB} \circ (|v_I| \quad 0 \quad 0)^T \circ \tilde{q}_{IB}]_{\delta q_{IB}}
+\end{split}
+\end{align}
+
+\subsection{Коррекция IMU ориентации}
+Используя уравнение \eqref{eq:imu_mes_simled}, можно записать
+\begin{align} 
+\begin{split}
+&a^{imu}_{calib}  = \tilde{q}_{IB} \circ (\ddot{r}_{I} - g_I) \circ q_{IB}
+\end{split}
+\end{align}
+Тогда, 
+\begin{align}
+z_3 = a^{imu}_{calib}
+\end{align}
+\begin{align}
+\begin{split}
+&H_3 =
+\begin{pmatrix}
+O_{3x3} & O_{3x3} & O_{3x3} & \alpha^a_q & O_{3x3},
+\end{pmatrix}
+\end{split}
+\end{align}
+где
+\begin{align}
+\begin{split}
+&\alpha^a_q = [\tilde{q}_{IB} \circ (\ddot{r}_{I} - g_I) \circ q_{IB}]_{\delta {q}_{IB}}
+\end{split}
+\end{align}
+
 
 \end{document}
