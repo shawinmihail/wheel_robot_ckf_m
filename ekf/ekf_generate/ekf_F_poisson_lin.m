@@ -12,6 +12,6 @@ qdot_w(w) = 0.5*quatMultiply(q , qw);
 qdot_q_j = jacobian(qdot_q, q)
 qdot_w_j = jacobian(qdot_w, w)
 
-matlabFunction(qdot_q_j,'file','ekf/ekf_routins/M_qdot_dq_fcn.m')
-matlabFunction(qdot_w_j,'file','ekf/ekf_routins/M_qdot_dw_fcn.m')
+% matlabFunction(qdot_q_j,'file','ekf/ekf_routins/M_qdot_dq_fcn.m')
+% matlabFunction(qdot_w_j,'file','ekf/ekf_routins/M_qdot_dw_fcn.m')
 

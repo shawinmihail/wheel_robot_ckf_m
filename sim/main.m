@@ -17,7 +17,7 @@ rng(seed);
 
 % loop
 dt = 1e-3;
-N = 20;
+N = 9999;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
