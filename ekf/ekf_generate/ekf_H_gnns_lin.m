@@ -15,20 +15,17 @@ vgnns_w(w) = quatRotate(q, cross(w, dr));
 
 rgnns_q_j = jacobian(rgnns_q, q);
 vgnns_q_j = jacobian(vgnns_q, q);
-vgnns_w_j = jacobian(vgnns_w, w)
+vgnns_w_j = jacobian(vgnns_q, w);
+ 
+rgnns_q_j = jacobian(quatRotate(q, r), q);
+vgnns_q_j = jacobian(quatRotate(q, r), q);
+vgnns_q_j = subs(vgnns_q_j, r, cross(w, dr));
+vgnns_w_j = -quat2matrix(q) * x_operator(dr);
 
-g = quatRotate(q, v);
-g_j = jacobian(g, q)
-g_j = subs(g_j, v, cross(w, dr));
-f = cross(w, dr);
-f_j = jacobian(f, w)
-g_j * f_j 
-% f_j = subs(f_j, v, cross(w, dr))
-% f_j - vgnns_q_j
-% 
-% matlabFunction(rgnns_q_j,'file','ekf/ekf_routins/Z_rgnns_dq_fcn.m')
-% matlabFunction(vgnns_q_j,'file','ekf/ekf_routins/Z_vgnns_dq_fcn.m')
-% matlabFunction(vgnns_w_j,'file','ekf/ekf_routins/Z_vgnns_dw_fcn.m')
+
+matlabFunction(rgnns_q_j,'file','ekf/ekf_routins/Z_rgnns_dq_fcn.m')
+matlabFunction(vgnns_q_j,'file','ekf/ekf_routins/Z_vgnns_dq_fcn.m')
+matlabFunction(vgnns_w_j,'file','ekf/ekf_routins/Z_vgnns_dw_fcn.m')
 
 %% v_abs_and_dir
 % ex = [1;0;0];
