@@ -39,6 +39,5 @@ F = [O33 E33 O33 O34 O33;
  
 I = eye(16);
 sqrtP = tria([(I+F*dt) * sqrtP, Q * sqrt(dt)], 16);
-
 end
 

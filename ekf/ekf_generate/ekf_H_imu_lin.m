@@ -9,18 +9,24 @@ dr = sym('dr', [3, 1]);
 assume([q; a; g; w; dr], 'real')
 dr = zeros(3,1); % imu is target point now
 
-%% 
-imu_a_q(q) = quatRotate(quatDual(q), a - g) - cross(w, cross(dr, w));
-imu_a_w(w) = quatRotate(quatDual(q), a - g) - cross(w, cross(dr, w));
-imu_a_a(a) = quatRotate(quatDual(q), a - g) - cross(w, cross(dr, w));
+%% old
+% imu_a_q(q) = quatRotate(quatDual(q), a - g);
+% imu_a_w(w) = quatRotate(quatDual(q), a - g);
+% imu_a_a(a) = quatRotate(quatDual(q), a - g);
+% 
+% imu_a_q_j = jacobian(imu_a_q, q)
+% imu_a_a_j = jacobian(imu_a_a, a)
+%  
+% matlabFunction(imu_a_q_j,'file','ekf/ekf_routins/Z_aimu_dq_fcn.m')
+% matlabFunction(imu_a_a_j,'file','ekf/ekf_routins/Z_aimu_da_fcn.m')
 
-imu_a_q_j = jacobian(imu_a_q, q)
-imu_a_w_j = jacobian(imu_a_w, w)
-imu_a_a_j = jacobian(imu_a_a, a)
+%% new
+imu_a_q(q) = quatRotate(q, a - g);
+imu_a_a(a) = quatRotate(quatDual(q), a - g);
 
+imu_a_q_j = jacobian(imu_a_q, q);
+imu_a_a_j = quat2matrix(quatDual(q));
 
 matlabFunction(imu_a_q_j,'file','ekf/ekf_routins/Z_aimu_dq_fcn.m')
-matlabFunction(imu_a_w_j,'file','ekf/ekf_routins/Z_aimu_dw_fcn.m')
 matlabFunction(imu_a_a_j,'file','ekf/ekf_routins/Z_aimu_da_fcn.m')
-
 

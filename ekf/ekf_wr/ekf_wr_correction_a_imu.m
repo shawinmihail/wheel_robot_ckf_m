@@ -22,8 +22,9 @@ O43 = zeros(4, 3);
 O44 = zeros(4, 4);
 E33 = eye(3, 3);
 
-Zaa = Z_aimu_da_fcn(a(1),a(2),a(3),q(1),q(2),q(3),q(4));
-Zaq = Z_aimu_dq_fcn(q(1),q(2),q(3),q(4),a(1),a(2),a(3),g(1),g(2),g(3));
+Zaa = Z_aimu_da_fcn(q(1),q(2),q(3),q(4));
+Zaq = Z_aimu_dq_fcn(q(1),-q(2),-q(3),-q(4),a(1),a(2),a(3),g(1),g(2),g(3));
+Zaq(:, 2:4) = -Zaq(:, 2:4);
 H = [O33 O33 Zaa Zaq O33];
 
 %% square-root K, H

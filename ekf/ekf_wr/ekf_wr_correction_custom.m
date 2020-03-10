@@ -40,15 +40,19 @@ Zvw1 = Z_vgnns_dw_fcn(gps_attachment_r(1),gps_attachment_r(2),gps_attachment_r(3
 Zvq2 = Z_vgnns_dq_fcn(q(1),q(2),q(3),q(4),gps_attachment_r(1),gps_attachment_r(2),gps_attachment_r(3),w(1),w(2),w(3));
 Zvw2 = Z_vgnns_dw_fcn(gps_attachment_r(1),gps_attachment_r(2),gps_attachment_r(3),q(1),q(2),q(3),q(4));
 
-Zaa = Z_aimu_da_fcn(a(1),a(2),a(3),q(1),q(2),q(3),q(4));
-Zaq = Z_aimu_dq_fcn(q(1),q(2),q(3),q(4),a(1),a(2),a(3),g(1),g(2),g(3));
+Zaa = Z_aimu_da_fcn(q(1),q(2),q(3),q(4));
+Zaq = Z_aimu_dq_fcn(q(1),-q(2),-q(3),-q(4),a(1),a(2),a(3),g(1),g(2),g(3));
+Zaq(:, 2:4) = -Zaq(:, 2:4);
 
 H = [E33 O33  O33 Zrq O33;
      O33 Zvv1 O33 Zvq1 Zvw1;
-     O33  E33 O33 Zvq2 Zvw2;
-     O33  O33  Zaa Zaq O33];
+     O33 E33  O33 Zvq2 Zvw2;
+     O33 O33  Zaa Zaq O33];
  
  %% ordinary K, P
+%  sqrtP
+%  sqrtR
+%  H
 P = sqrtP * sqrtP';
 R = sqrtR * sqrtR';
 Rk = R + H*P*H';
@@ -64,7 +68,8 @@ sqrtP = chol(P,'lower');
 % dz = (sqrtRk')^-1 * dz;
 
 %% corrections
-X(10:13) = X(10:13) / norm(X(10:13));
 X = X + K*dz;
+X(10:13);
+X(10:13) = X(10:13) / norm(X(10:13));
 end
 

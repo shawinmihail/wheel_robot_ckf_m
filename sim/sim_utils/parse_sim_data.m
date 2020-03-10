@@ -25,6 +25,17 @@ vz_mes = mes_states(6, :);
 ax_mes = mes_states(7, :);
 ay_mes = mes_states(8, :);
 az_mes = mes_states(9, :);
+
+g = [0;0;-10];
+for i = 1:length(ax_mes)
+    a = mes_states(7:9, i);
+    q = act_states(10:13, i);
+    a_cl(:, i) = quatRotate(q, a) + g;
+end
+ax_cl = a_cl(1,:);
+ay_cl = a_cl(2,:);
+az_cl = a_cl(3,:);
+
 qw_mes = mes_states(10, :);
 qx_mes = mes_states(11, :);
 qy_mes = mes_states(12, :);
