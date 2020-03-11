@@ -10,7 +10,7 @@ rng(seed);
 
 % loop
 dt = 1e-3;
-N = 90000;
+N = 19000;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
@@ -47,7 +47,7 @@ for i = 1:N
     
     %% actuators dyn modeling
     next_ctrl = [5 ; 0.01 - 0.001*t];   
-    if t < 10
+    if t < 3
         next_ctrl = [0 ; 0];
     end
     if t > 50 && t < 70
@@ -80,8 +80,8 @@ for i = 1:N
     Z = mes_state_curr(1:3);
     [est_state_next, sqrtP_next] = ekf2_wr_correction_p_gnns(est_state_next, sqrtP_next, Z, sqrtR_p_gnns, gps_attachment_r);
     Z = mes_state_curr(4:6);
-    [est_state_next, sqrtP_next] = ekf2_wr_correction_u_gnns(est_state_next, sqrtP_next, Z, sqrtR_u_gnns);
-    [est_state_next, sqrtP_next] = ekf2_wr_correction_v_gnns(est_state_next, sqrtP_next, Z, sqrtR_v_gnns);
+%     [est_state_next, sqrtP_next] = ekf2_wr_correction_u_gnns(est_state_next, sqrtP_next, Z, sqrtR_u_gnns);
+%     [est_state_next, sqrtP_next] = ekf2_wr_correction_v_gnns(est_state_next, sqrtP_next, Z, sqrtR_v_gnns);
     Z = mes_state_curr(7:9);
     [est_state_next, sqrtP_next] = ekf2_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_a_imu);
  

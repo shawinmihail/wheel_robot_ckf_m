@@ -6,7 +6,7 @@ R_g_imu = diag(imu_acc_rsm*[1; 1; 1]).^2;
 R_pvq_gnns = diag([gps_pos_local_rsm*[1; 1; 1]; gps_vel_local_rsm*[1; 1; 1]; gps_quat_rsm*[1; 1; 1; 1]]).^2;
 R_v_ad_gnns = diag(gps_vel_local_rsm*[1; 1; 1]).^2;
 
-Q = diag([1e-3*[1; 1; 1]; 1e-3*[1; 1; 1]; 1e-3*[1; 1; 1]; 1e-5*[1; 1; 1; 1]; 1e-5*[1; 1; 1]]);
+Q = diag([1e-2*[1; 1; 1]; 1e-2*[1; 1; 1]; 1e-2*[1; 1; 1]; 1e-4*[1; 1; 1; 1]; 1e-2*[1; 1; 1]]);
 P0 = 10*Q;
 
 R_att = diag(1e-6*[1 1 1 1]);

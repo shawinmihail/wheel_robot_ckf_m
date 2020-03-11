@@ -36,7 +36,7 @@ initial_ctrl = [0; 0];
 
 %% scripts
 run('sensors_init')
-run('estimation_init')
+run('init_ekf')
 
 %% preproc
 curr_state = initial_state;
@@ -52,13 +52,13 @@ for i = 1:N
     
     i    
     
-    %% actuators dyn modeling
-    next_ctrl = [5 ; 0.01 - 0.001*t];   
+    %% actuators dyn mo deling
+    next_ctrl = [5 ; 0.01 - 0.0001*t];   
     if t < 10
         next_ctrl = [0 ; 0];
     end
     if t > 50 && t < 70
-        next_ctrl = [0 ; 0];
+        next_ctrl = [3 ; 0.01 + 0.002*(t-50)];
     end
     next_ctrl = process_control_input(curr_ctrl, next_ctrl, dt);
     
@@ -72,8 +72,10 @@ for i = 1:N
     full_state_curr = [next_state(1:6);next_a;next_state(7:10);next_w; next_w_dot];
 
     %% mes_state
-    mes_state_curr = mes_state_from_full_state(...
-        full_state_curr, gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, imu_acc_rsm, imu_rot_vel_rsm, imu_attachment_r, gps_attachment_r);
+    mes_state_curr = mes_state_from_full_state(full_state_curr, ...
+    gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, gps_attachment_r, ...
+    imu_acc_rsm, imu_acc_scale_factor, imu_acc_bias, ... 
+    imu_rotvel_rsm, imu_rotvel_scale_factor, imu_rotvel_bias, imu_quat_shift);
      
     %% estimation, X = [r v q]
     a_mes = mes_state_curr(7:9);
@@ -91,39 +93,33 @@ for i = 1:N
 %     end
 
     %% correct pos vel gnns
-%     if i > -1
-%         if (mod(i, 50) == 1)
-%             if rand() > -1
-                Z = mes_state_curr(1:6);
-                [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
-%             end
-%         end
-%     end
+    if (mod(i, 50) == 5)
+        Z = mes_state_curr(1:6);
+        [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
+    end
      
-%     %% correct vel abs and dir gnns
-%     if i > -1
-%         if (mod(i, 50) == 1)
-%             if rand() > -1
-%                 v = mes_state_curr(4:6);
-%                 nv = norm(v);
-%                 if nv > -1
-%                     Z = v;
-                    [est_state_next, sqrtP_next] = ...
-                        ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, mes_state_curr(4:6), sqrtR_v_ad_gnns, gps_attachment_r);
-%                 end
-%             end
-%         end
-%     end
-%         
-%     %% correct a
-%     if i < -1
-%         if (mod(i, 2) == 1)
-%             if rand() > -1
+    %% correct vel abs and dir gnns
+    if (mod(i, 50) == 5)
+        if rand() > -1
+            v = mes_state_curr(4:6);
+            nv = norm(v);
+            if nv > 0.1
+                Z = v;
+                [est_state_next, sqrtP_next] = ...
+                    ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, mes_state_curr(4:6), sqrtR_v_ad_gnns, gps_attachment_r);
+            end
+        end
+    end
+       
+    %% correct a
+    if i < -1
+        if (mod(i, 10) == 1)
+            if rand() > -1
                 Z = mes_state_curr(7:9);
                 [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
-%             end
-%         end
-%     end
+            end
+        end
+    end
     
 %     %% correct pos vel att gnns
 %     if (mod(i, 150) == 99)

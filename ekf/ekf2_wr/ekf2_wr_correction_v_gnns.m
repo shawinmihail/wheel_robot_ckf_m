@@ -19,7 +19,7 @@ O43 = zeros(4, 3);
 O44 = zeros(4, 4);
 E33 = eye(3, 3);
 
-H = [O33 E33 O34];
+H = [O33 E33 O33 O34];
 
 %% square-root
 M = tria([sqrtR, H * sqrtP; zeros(n, m), sqrtP], m + n);

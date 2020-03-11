@@ -2,9 +2,9 @@ function [X, sqrtP] = ekf2_wr_correction_u_gnns(X, sqrtP, Z, sqrtR)
 n = length(X);
 m = length(Z);
 
-%% X [r v a q w]
+%% X [r v a q]
 v = X(4:6);
-q = X(7:10);
+q = X(10:13);
 
 %% mes model
 % Z [vgnns]
@@ -24,7 +24,7 @@ u = [norm(v); 0; 0];
 Zuq = quat_rot_fcn_j(q(1),q(2),q(3),q(4), u(1),u(2),u(3));
 Zuv = [norm_fcn_j(v(1),v(2),v(3)); zeros(2,3)];
 
-H = [O33 Zuv Zuq];
+H = [O33 O33 Zuv Zuq];
 
 %% square-root
 M = tria([sqrtR, H * sqrtP; zeros(n, m), sqrtP], m + n);
