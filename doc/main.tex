@@ -88,8 +88,17 @@ e^{\textit{gyr}} = e_{0}^{\textit{gyr}} + \epsilon^{\textit{gyr}}
 Обозначим $\delta r^{gnns}$ положение принимающей антенны системы глобальной навигации в $B$ . Тогда измерения положения и скорости связаны с положением начала собственной системы координат как
 \begin{align} \label{eq:gnns_mes_model}
 \begin{split}
-&r_{gnns} = r_I + q_{IB} \circ \delta r^{gnns}_B \circ \tilde{q}_{IB} \\
-&v_{gnns} = v_I + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB}
+&r^{gnns} = r_I + q_{IB} \circ \delta r^{gnns}_B \circ \tilde{q}_{IB} \\
+&v^{gnns} = v_I + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB}
+\end{split}
+\end{align}
+
+Кроме этого, при наличии нескольких gnns-приемников, обозначив их относительное смещение
+${\delta}_{ij}^{gnns}$
+можно записать
+\begin{align} \label{eq:d_gnns_mes_model}
+\begin{split}
+&\delta_{ijI}^{gnns} = q_{IB} \circ \delta_{ijB} ^{gnns} \circ \tilde{q}_{IB} \\
 \end{split}
 \end{align}
 
@@ -208,7 +217,7 @@ O_{3x3} & O_{3x3} & O_{3x3} & O_{3x4} & O_{3x3}
 \subsection{Коррекция GNNS положения и скорости}
 Для коррекции используются показания систем глобальной навигации, которые позволяют оценить положение и скорость антенны
 \begin{align}
-z_1 = (r_{gnns} \quad v_{gnns}).
+z_1 = (r^{gnns} \quad v^{gnns}).
 \end{align}
 Используя уравнения \eqref{eq:gnns_mes_model} можем записать 
 \begin{align}
@@ -233,13 +242,13 @@ O_{3x3} & E_{3x3} & O_{3x3} & Z^v_q & Z^v_{\Omega}
 Используя уравнения модели (\ref{eq:model_velocity}-\ref{eq:model_rot_velocity}) и уравнения для показаний GNNS датчика \eqref{eq:gnns_mes_model} можно записать
 \begin{align}
 \begin{split}
-&v_{gnns} = v_I + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB} = \\
+&v^{gnns} = v_I + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB} = \\
 & = q_{IB} \circ (|v_I| \quad 0 \quad 0)^T \circ \tilde{q}_{IB} + q_{IB} \circ  (\Omega_B \times \delta r^{gnns}_B) \circ \tilde{q}_{IB}
 \end{split}
 \end{align}
 Тогда, 
 \begin{align}
-z_2 = v_{gnns}.
+z_2 = v^{gnns}.
 \end{align}
 \begin{align}
 \begin{split}
@@ -284,5 +293,27 @@ O_{3x3} & O_{3x3} & \alpha^{\ddot{r}}_a & \alpha^a_q & O_{3x3},
 \end{split}
 \end{align}
 
+\section{Калибровка}
+\subsection{Калибровка датчика ускорения}
+Для определения параметров установки датчика ускорения и его статических ошибок выполним калибровочный маневр разгона по прямой на ровной поверхности. Будем при этом считать ориентацию корпуса роботоа неизменной и известной. Тогда, введя дополнительно обозначение $S^{imu} = diag(s^{imu})$ -- диагональная матрица мультипликативной ошибки сенсора, можно записать
+\begin{align} 
+\begin{split} \label{eq:imu_calib_1}
+&\ddot{r}_{I}  = {q}_{IB} \circ q_{BM} \circ ((S^{imu})^{-1} a^{imu} - e^{imu}_0 - \epsilon^{imu}) \circ \tilde{q}_{BM} \circ \tilde{q}_{IB} + g_I
+\end{split}
+\end{align}
+А с учетом модели движения
+\begin{align} 
+\begin{split} \label{eq:imu_calib_2}
+&(||\ddot{r}_{I}|| \quad 0 \quad 0)  = q_{BM} \circ ((S^{imu})^{-1} a^{imu} - e^{imu}_0 - \epsilon^{imu}) \circ \tilde{q}_{BM} + g_I
+\end{split}
+\end{align}
+Используем приведенные ранее алгоритмы расширенного фильтра Калмана для оценки параметров
+\begin{align} 
+x = (s^{imu} \quad e^{imu}_0 \quad {q}_{BM})
+\end{align}
+с помощью измерений 
+\begin{align} 
+z = \dot{v}^{gnns}
+\end{align}
 
 \end{document}

@@ -48,5 +48,6 @@ sqrtRk = M(1:m, 1:m);
 K = M(m + 1:m + n, 1:m);
 sqrtP = M(m + 1:n + m, m + 1:n + m);
 X = X + K*(sqrtRk')^-1*dz;
+X(10:13) = X(10:13) / norm(X(10:13));
 end
 

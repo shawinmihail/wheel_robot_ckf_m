@@ -17,7 +17,7 @@ imu_acc_bias = [0.00; 0.00; 0.00];
 
 % gyro
 imu_rotvel_rsm = 0.001;
-imu_rotvel_scale_factor = [1.10 0      0;
-                           0    1.10   0;
-                           0    0     1.10];
-imu_rotvel_bias = [0.01; 0.00; 0.05];
+imu_rotvel_scale_factor = [1.00 0      0;
+                           0    1.00   0;
+                           0    0     1.00];
+imu_rotvel_bias = [0.01; 0.00; 0.00];
