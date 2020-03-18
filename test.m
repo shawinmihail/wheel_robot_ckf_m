@@ -2,7 +2,12 @@ clc
 clear
 
 
-syms r hp p
-assume([r hp p], 'real')
-M = [r hp; 0 p]
-tria(M, 2)
+q = [100;10;0;0]
+for i = 1:1000
+    q(4) = i/10;
+    qn = q/norm(q);
+    e = quat2Eul(qn)*180/pi;
+    a(i) = e(3);
+end
+plot(a)
+

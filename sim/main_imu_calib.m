@@ -2,13 +2,6 @@ clc
 clear
 close all
 
-% TODO
-% correction only vector part of quaternion
-% quat mean and covariance -- find right way to define
-% note imu sensor has bias and attachment shift
-% correct q with gps need to calculate another parts of accelarations
-% ekf_wr_correction_v_unit_gnns v/norm(v) -- can be added to H
-
 
 %% initial values and constants
 %rand
@@ -17,10 +10,10 @@ rng(seed);
 
 % loop
 dt = 1e-3;
-N = 99999;
+N = 999;
 
 % surf
-[surf_fcn, grad_surf] = custom_surf();
+[surf_fcn, grad_surf] = plane_surf();
 
 % initial
 initial_x = 0;
@@ -28,7 +21,7 @@ initial_y = -30;
 initial_z = surf_fcn(initial_x, initial_y);
 initial_r = [initial_x;initial_y;initial_z];
 initial_v = [0;0;0];
-initial_yaw = pi/3;
+initial_yaw = 0;
 initial_q = calc_q_full(grad_surf, initial_r, initial_yaw);
 initial_w = [0;0;0];
 initial_state = [initial_r; initial_v; initial_q];
@@ -36,15 +29,15 @@ initial_ctrl = [0; 0];
 
 %% scripts
 run('sensors_init')
-run('init_ekf')
+run('init_ekf_imu_calib')
 
 %% preproc
-curr_state = initial_state;
+curr_state = initial_state; 
 curr_yaw = initial_yaw;
 curr_w = initial_w;
 curr_ctrl = initial_ctrl;
-est_state_curr = initial_est_state;
-sqrtP_curr = initial_sqrtP;
+est_state_curr = imu_calib_state;
+sqrtP_curr = sqrt_P_imu_calib;
 
 %% sim
 t = 0;
@@ -52,14 +45,12 @@ for i = 1:N
     
     i    
     
-    %% actuators dyn mo deling
-    next_ctrl = [5 ; 0.01 - 0.0001*t];   
-    if t < 10
-        next_ctrl = [0 ; 0];
-    end
-    if t > 50 && t < 70
-        next_ctrl = [3 ; 0.01 + 0.002*(t-50)];
-    end
+    %% actuators dyn modeling
+    next_ctrl = [sin(t/20) ; 0];   
+%     if t < 5
+%         next_ctrl = [0; 0];
+%     end
+
     next_ctrl = process_control_input(curr_ctrl, next_ctrl, dt);
     
     %% wheel robot state evolution
@@ -77,34 +68,14 @@ for i = 1:N
     imu_acc_rsm, imu_acc_scale_factor, imu_acc_bias, ... 
     imu_rotvel_rsm, imu_rotvel_scale_factor, imu_rotvel_bias, imu_quat_shift);
      
+     
     %% estimation, X = [r v q]
     a_mes = mes_state_curr(7:9);
     w_mes = mes_state_curr(14:16);
     
-    %% predict with imu
-    [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, Q, a_mes, w_mes, dt);
-    
-    %% correct pos vel gnns
-%     if (mod(i, 50) == 5)
-    Z = mes_state_curr(1:6);
-    [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
-%     end
-     
-    %% correct vel abs and dir gnns
-    [est_state_next, sqrtP_next] = ...
-        ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, mes_state_curr(4:6), sqrtR_v_ad_gnns, gps_attachment_r);
-     
-    %% correct a
-    Z = mes_state_curr(7:9);
-    [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
-    
-%     %% correct pos vel att gnns
-%     if (mod(i, 150) == 99)
-%         if rand() > 0.1
-%             Z = [mes_state_curr(1:6); mes_state_curr(10:13)];
-%             [est_state_next, sqrtP_next] = ekf_wr_correction_pvq_gnns(est_state_next, sqrtP_next, Z, sqrtR_pvq_gnns);
-%         end
-%     end
+    Z = [norm(full_state_curr(7:9) + 0.05 * randn(3,1)); 0; 0];
+    [est_state_next, sqrtP_next] = ekf_imu_calib_correction(est_state_curr, sqrtP_curr, Z, sqrtR_imu_calib, a_mes);
+ 
     
     %% sim next step
     curr_ctrl = next_ctrl;
@@ -121,6 +92,7 @@ for i = 1:N
     mes_states(:, i) = mes_state_curr;
     sqrtP_diag(:,i) = diag(sqrtP_next);
     timeline(i) = t;
+    
 
 end
 

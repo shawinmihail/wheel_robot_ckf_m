@@ -10,6 +10,7 @@ fclose(fileID);
 fileID = fopen('act_states.floats','w');
 data = [timeline' act_states']';
 size_of_data = size(data);
+size_of_data
 fwrite(fileID, size_of_data, 'int');
 fwrite(fileID, data, 'float');
 fclose(fileID);
