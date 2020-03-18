@@ -3,125 +3,118 @@ clear
 close all
 
 %% cleared imu
-path_imu_data = 'logs/example2/uav_control_2020_02_11_7_imu.log';
-data_table = readtable(path_imu_data, 'FileType', 'text');
+path = 'logs/example2/';
+name_base = 'uav_control_2020_03_11_';
+num = '0';
 
-n = length(data_table.Var4)
-for i = 1:n
-    str_rx = data_table.Var4(i);
-    str_rx = str_rx{1};
-    str_rx = str_rx(1:end-1);
-    ax(i) = str2num(str_rx);
-    
-    str_ay = data_table.Var5(i);
-    str_ay = str_ay{1};
-    str_ay = str_ay(1:end-1);
-    ay(i) = str2num(str_ay);
+type_imu = 'imu';
+type_gps = 'pos';
+path_imu_data = [path name_base num '_' type_imu '.log'];
+path_gps_data = [path name_base num '_' type_gps '.log'];
+imu_data_table = readtable(path_imu_data, 'FileType', 'text');
+gps_data_table = readtable(path_gps_data, 'FileType', 'text');
 
-    str_rz = data_table.Var6(i);
-    az(i) = str_rz;
-    
-    str_Ax = data_table.Var7(i);
-    str_Ax = str_Ax{1};
-    str_Ax = str_Ax(1:end-1);
-    wx(i) = str2num(str_Ax);
-     
-    str_Ay = data_table.Var8(i);
-    str_Ay = str_Ay{1};
-    str_Ay = str_Ay(1:end-1);
-    wy(i) = str2num(str_Ay);
- 
-    str_Az = data_table.Var9(i);
-    wz(i) = str_Az;
-end
+%%
+t0 = imu_data_table.Var2(1);
+t_imu = (imu_data_table.Var2 - t0) / 10^9;
+ax = imu_data_table.Var4;
+ay = imu_data_table.Var5;
+az = imu_data_table.Var6;
+wx = imu_data_table.Var7;
+wy = imu_data_table.Var8;
+wz = imu_data_table.Var9;
 
-rms_ax = rms(ax - mean(ax))
-rms_ay = rms(ay - mean(ay))
-rms_az = rms(az - mean(az))
+%%
+t_gps = (gps_data_table.Var2 - t0) / 10^9;
+k0 = gps_data_table.Var3;
+rx0 = gps_data_table.Var4;
+ry0 = gps_data_table.Var5;
+rz0 = gps_data_table.Var6;
 
-rms_wx = rms(wx - mean(wx))
-rms_wy = rms(wy - mean(wy))
-rms_wz = rms(wz - mean(wz))
+k1 = gps_data_table.Var7;
+rx1 = gps_data_table.Var8;
+ry1 = gps_data_table.Var9;
+rz1 = gps_data_table.Var10;
 
+k2 = gps_data_table.Var11;
+rx2 = gps_data_table.Var12;
+ry2 = gps_data_table.Var13;
+rz2 = gps_data_table.Var14;
+
+imu_data = [t_imu ax ay az wx wy wz];
+gps_data = [t_gps rx0 ry0 rz0 rx1 ry1 rz1 rx2 ry2 rz2];
+
+%% v
 % figure
 % hold on
-% plot(ax, 'r')
-% plot(ay, 'g')
-% plot(az, 'b')
 % 
-% figure
-% hold on
-% plot(wx, 'r')
-% plot(wy, 'g')
-% plot(wz, 'b')
-return
-%% raw imu
-path_imu_data = 'logs/example1/uav_control_2020_02_11_7_raw_imu.log';
-data_table = readtable(path_imu_data, 'FileType', 'text');
-
-n = length(data_table.Var4)
-for i = 1:n
-    str_rx = data_table.Var4(i);
-    str_rx = str_rx{1};
-    str_rx = str_rx(1:end-1);
-    ax(i) = str2num(str_rx);
-    
-    str_ay = data_table.Var5(i);
-    str_ay = str_ay{1};
-    str_ay = str_ay(1:end-1);
-    ay(i) = str2num(str_ay);
-
-    str_rz = data_table.Var6(i);
-    az(i) = str_rz;
-    
-    str_Ax = data_table.Var7(i);
-    str_Ax = str_Ax{1};
-    str_Ax = str_Ax(1:end-1);
-    wx(i) = str2num(str_Ax);
-     
-    str_Ay = data_table.Var8(i);
-    str_Ay = str_Ay{1};
-    str_Ay = str_Ay(1:end-1);
-    wy(i) = str2num(str_Ay);
- 
-    str_Az = data_table.Var9(i);
-    wz(i) = str_Az;
-end
-
-% figure
-% hold on
-% plot(ax, 'r')
-% plot(ay, 'g')
-% plot(az, 'b')
+% dt_gps = diff(t_gps);
+% vx = diff(rx0) ./ dt_gps;
 % 
-% figure
-% hold on
-% plot(wx, 'r')
-% plot(wy, 'g')
-% plot(wz, 'b')
+% vlim = 1.2;
+% vx(vx>vlim) = vlim;
+% vx(vx<-vlim) = -vlim;
+% plot(vx)
+% plot(smooth(vx), 'k')
 
-%% pos vel
-path_imu_data = 'logs/example1/uav_control_2020_02_11_7_position.log';
-data_table = readtable(path_imu_data, 'FileType', 'text');
-
-n = length(data_table.Var4)
-for i = 1:n
-    str_k1(i) = data_table.Var3(i);
-    
-    str_rx = data_table.Var4(i);
-    rx(i) = str_rx;
-    
-    str_ry = data_table.Var5(i);
-    ry(i) = str_ry;
-
-    str_rz = data_table.Var6(i);
-    rz(i) = str_rz;
-end
-
+%% drs gnss
 figure
 hold on
-plot(str_k1, 'k')
-plot(rx-rx(1), 'r')
-plot(ry-ry(1), 'g')
-plot(rz-rz(1), 'b')
+ex = [1;0;0];
 
+for i = 1:60
+    if ~(k1(i) > 3) | ~(k2(i) > 3)
+        continue
+    end
+    r1 = [rx1(i), ry1(i), rz1(i)]';
+    r2 = [rx2(i), ry2(i), rz2(i)]';
+    rd = r1 + (r2 - r1) / 2;
+
+    q = quatBetweenVectors(rd, ex);
+
+    p1 = quatRotate(q, r1);
+    p2 = quatRotate(q, r2);
+    pd = quatRotate(q, rd);
+    
+%     plot3(0, 0, 0, 'r*')
+%     plot3(r1(1), r1(2), r1(3), 'g*')
+%     plot3(r2(1), r2(2), r2(3), 'b*')
+%     plot3(rd(1), rd(2), rd(3), 'k*')
+
+    plot3(0, 0, 0, 'r*')
+    plot3(p1(1), p1(2), p1(3), 'g*')
+    plot3(p2(1), p2(2), p2(3), 'b*')
+    plot3(pd(1), pd(2), pd(3), 'k*')
+end
+
+
+% figure
+% hold on
+% plot(ax, 'r')
+% plot(ay, 'g')
+% plot(az, 'b')
+% 
+% figure
+% hold on
+% plot(wx, 'r')
+% plot(wy, 'g')
+% plot(wz, 'b')
+
+% figure
+% hold on
+% grid on
+% plot3(rx0-rx0(1), ry0-ry0(1), rz0-rz0(1), 'r')
+% plot3(rx0-rx0(1) + rx1, ry0-ry0(1) + ry1, rz0-rz0(1) + rz1, 'g')
+% plot3(rx0-rx0(1) + rx2, ry0-ry0(1) + ry2, rz0-rz0(1) + rz2, 'b')
+
+% figure
+% hold on
+% plot(rx0-rx0(1), 'r')
+% plot(ry0-ry0(1), 'g')
+% plot(rz0-rz0(1), 'b')
+% 
+% figure
+% hold on
+% plot(vx, 'r')
+% plot(vy, 'g')
+% plot(vz, 'b') 
