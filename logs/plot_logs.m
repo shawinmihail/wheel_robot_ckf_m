@@ -3,7 +3,7 @@ clear
 close all
 
 %% cleared imu
-path_imu_data = 'logs/example1/uav_control_2020_02_11_7_imu.log';
+path_imu_data = 'logs/example2/uav_control_2020_02_11_7_imu.log';
 data_table = readtable(path_imu_data, 'FileType', 'text');
 
 n = length(data_table.Var4)
