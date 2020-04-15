@@ -1,5 +1,6 @@
 function mes_state = mes_state_from_full_state(full_state, ...
     gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, gps_attachment_r, ...
+    gps_slave_1, gps_slave_2, ...
     imu_acc_rsm, imu_acc_scale_factor, imu_acc_bias, ... 
     imu_rotvel_rsm, imu_rotvel_scale_factor, imu_rotvel_bias, imu_quat_shift)
 
@@ -26,3 +27,10 @@ mes_state(10:13) = full_state(10:13) + randn(4, 1) * gps_quat_rsm;
 mes_state(10:13) = mes_state(10:13) / norm(mes_state(10:13));
 % w
 mes_state(14:16) = imu_rotvel_scale_factor * full_state(14:16)  + randn(3, 1) * imu_rotvel_rsm + imu_rotvel_bias;
+
+% gps slaves
+dp1 = quatRotate(q, gps_slave_1) + randn(3, 1) * gps_pos_local_rsm;
+dp2 = quatRotate(q, gps_slave_2) + randn(3, 1) * gps_pos_local_rsm;
+dp3 = dp2 - dp1;
+mes_state(17:19) = dp1;
+mes_state(20:22) = dp2;

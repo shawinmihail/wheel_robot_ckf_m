@@ -3,6 +3,8 @@ gps_pos_local_rsm = 0.12;
 gps_vel_local_rsm = 0.05;
 gps_quat_rsm = 0.001;
 gps_attachment_r = [0.3; -0.3; 0.9];
+gps_slave_1 = [0.3; 0.2; 0.1];
+gps_slave_2 = [0.3; -0.2; 0.1];
 
 %% imu
 imu_attachment_r = [0; 0; 0]; %% imu is target point for simplification

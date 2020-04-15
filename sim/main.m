@@ -17,7 +17,7 @@ rng(seed);
 
 % loop
 dt = 1e-3;
-N = 99999;
+N = 19999;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
@@ -74,6 +74,7 @@ for i = 1:N
     %% mes_state
     mes_state_curr = mes_state_from_full_state(full_state_curr, ...
     gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, gps_attachment_r, ...
+    gps_slave_1, gps_slave_2, ...
     imu_acc_rsm, imu_acc_scale_factor, imu_acc_bias, ... 
     imu_rotvel_rsm, imu_rotvel_scale_factor, imu_rotvel_bias, imu_quat_shift);
      
@@ -94,17 +95,20 @@ for i = 1:N
     [est_state_next, sqrtP_next] = ...
         ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, mes_state_curr(4:6), sqrtR_v_ad_gnns, gps_attachment_r);
      
-    %% correct a
-    Z = mes_state_curr(7:9);
-    [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
+%     %% correct a
+%     Z = mes_state_curr(7:9);
+%     [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
     
-%     %% correct pos vel att gnns
-%     if (mod(i, 150) == 99)
-%         if rand() > 0.1
-%             Z = [mes_state_curr(1:6); mes_state_curr(10:13)];
-%             [est_state_next, sqrtP_next] = ekf_wr_correction_pvq_gnns(est_state_next, sqrtP_next, Z, sqrtR_pvq_gnns);
-%         end
-%     end
+    %% correct pos vel att gnnsq
+    dp1 = mes_state_curr(17:19);
+    dp2 = mes_state_curr(20:22);
+    dp3 = dp2 - dp1;
+    dr1 = gps_slave_1;
+    dr2 = gps_slave_2;
+    dr3 = gps_slave_2 - gps_slave_1;
+    Z = [dp1; dp2; dp3];
+    [est_state_next, sqrtP_next] = ekf_wr_correction_p3_gnns(est_state_next, sqrtP_next, Z, sqrtR_p3_gnns, dr1, dr2, dr3);
+
     
     %% sim next step
     curr_ctrl = next_ctrl;
