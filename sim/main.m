@@ -4,10 +4,8 @@ close all
 
 % TODO
 % correction only vector part of quaternion
-% quat mean and covariance -- find right way to define
 % note imu sensor has bias and attachment shift
 % correct q with gps need to calculate another parts of accelarations
-% ekf_wr_correction_v_unit_gnns v/norm(v) -- can be added to H
 
 
 %% initial values and constants
@@ -88,26 +86,24 @@ for i = 1:N
     %% correct pos vel gnns
 %     if (mod(i, 50) == 5)
     Z = mes_state_curr(1:6);
-    [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
+%     [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
 %     end
      
     %% correct vel abs and dir gnns
-    [est_state_next, sqrtP_next] = ...
-        ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, mes_state_curr(4:6), sqrtR_v_ad_gnns, gps_attachment_r);
+%     [est_state_next, sqrtP_next] = ...
+%         ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, mes_state_curr(4:6), sqrtR_v_ad_gnns, gps_attachment_r);
      
-%     %% correct a
+    %% correct a
 %     Z = mes_state_curr(7:9);
 %     [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
     
-    %% correct pos vel att gnnsq
+    %% correct pos vel att gnns
     dp1 = mes_state_curr(17:19);
     dp2 = mes_state_curr(20:22);
-    dp3 = dp2 - dp1;
     dr1 = gps_slave_1;
     dr2 = gps_slave_2;
-    dr3 = gps_slave_2 - gps_slave_1;
-    Z = [dp1; dp2; dp3];
-    [est_state_next, sqrtP_next] = ekf_wr_correction_p3_gnns(est_state_next, sqrtP_next, Z, sqrtR_p3_gnns, dr1, dr2, dr3);
+    Z = [dp1; dp2];
+    [est_state_next, sqrtP_next] = ekf_wr_correction_p3_gnns(est_state_next, sqrtP_next, Z, sqrtR_p3_gnns, dr1, dr2);
 
     
     %% sim next step

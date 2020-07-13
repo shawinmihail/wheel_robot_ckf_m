@@ -22,17 +22,25 @@ for i = 1:length(est_states(11, :))
     e(:, i) = quat2Eul(est_states(10:13, i)) * 180 / pi;
 end
 
-for i = 1:length(mes_q(1, :))
+for i = 1:length(est_states(11, :))
     e0(:, i) = quat2Eul(mes_q(1:4, i)) * 180 / pi;
 end
 
 
 figure
 hold on
+n = 1500;
 de = e(1, :) - e0(1, :);
-plot(timeline(1500:end), de(1500:end), 'r--')
+rms_roll = rms(de(n:end))
+plot(timeline(n:end), de(n:end), 'r--')
+
 de = e(2, :) - e0(2, :);
-plot(timeline(1500:end), de(1500:end), 'g--')
-de = e(3, :) - e0(3, :);
-plot(timeline(1500:end), de(1500:end), 'b--')
+rms_pitch = rms(de(n:end))
+plot(timeline(n:end), de(n:end), 'g--')
+
+de = shortest_rot(e(3, :) - e0(3, :));
+rms_yaw = rms(de(n:end))
+plot(timeline(n:end), de(n:end), 'b--')
+
 ylim([-10 10])
+

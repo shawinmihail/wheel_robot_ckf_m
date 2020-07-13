@@ -14,7 +14,7 @@ load('wheel_robot_ckf_m\logs\gps_mes0.mat')
 load('wheel_robot_ckf_m\logs\imu_mes0.mat')
 
 T0 = 0;
-T = 70;
+T = 2*60;
 % T = gps_mes(end, 1);
 time_cutter_imu = find(imu_mes(:, 1) < T & imu_mes(:, 1) > T0);
 imu_mes = imu_mes(time_cutter_imu(1):time_cutter_imu(end), :);
@@ -23,9 +23,9 @@ gps_mes = gps_mes(time_cutter_gps(1):time_cutter_gps(end), :);
 
 %% init sensors
 % gps
-gps_attachment_r = [0.0; 0.0; 0.0]; % ????
-gps_slave_1 = [-0.76; -0.23; 0.19];
-gps_slave_2 = [-0.76;  0.23; 0.19];
+gps_attachment_r = [-0.1; -0.1; 0.35]; % ????
+gps_slave_1 = [0.75;  0.23; -0.203];
+gps_slave_2 = [0.77; -0.23; -0.196];
 
 
 %% setup_ekf
@@ -94,8 +94,9 @@ for t = T0:step:floor(T)
 %             dr1 = gps_slave_1;
 %             dr2 = gps_slave_2;
 %             dr3 = gps_slave_2 - gps_slave_1;
-%             Z = [dp1; dp2; dp3];
-%             [est_state_next, sqrtP_next] = ekf_wr_correction_p3_gnns(est_state_next, sqrtP_next, Z, sqrtR_p3_gnns, dr1, dr2, dr3);
+%             Z = [dp1; dp2];
+% % %         [est_state_next, sqrtP_next] = ekf_wr_correction_p3_gnns(est_state_next, sqrtP_next, Z, sqrtR_p3_gnns, dr1, dr2, dr3);
+%             [est_state_next, sqrtP_next] = ekf_wr_correction_p2_gnns(est_state_next, sqrtP_next, Z, sqrtR_p2_gnns, dr1, dr2);
 % 
 %             q = est_state_next(10:13);
 %             est_gps_slave1 = quatRotate(q, gps_slave_1);

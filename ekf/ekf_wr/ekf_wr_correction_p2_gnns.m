@@ -1,4 +1,4 @@
-function [X, sqrtP] = ekf_wr_correction_p3_gnns(X, sqrtP, Z, sqrtR, dr1, dr2)
+function [X, sqrtP] = ekf_wr_correction_p2_gnns(X, sqrtP, Z, sqrtR, dr1, dr2)
 
 n = length(X);
 m = length(Z);
@@ -14,7 +14,6 @@ w = X(14:16);
 % Z [dp1 dp2 dp3]
 % dp1 = dr_slave1
 % dp2 = dr_slave2
-% dp3 = dp2 - dp1
 
 Z_dp1 = quatRotate(q, dr1);
 Z_dp2 = quatRotate(q, dr2);
@@ -31,25 +30,25 @@ E33 = eye(3, 3);
 Zq1 = quat_rot_fcn_j(q(1),q(2),q(3),q(4), dr1(1),dr1(2),dr1(3));
 Zq2 = quat_rot_fcn_j(q(1),q(2),q(3),q(4), dr2(1),dr2(2),dr2(3));
 H = [O33 O33 O33 Zq1 O33;
-     O33 O33 O33 Zq2 O33;];
+     O33 O33 O33 Zq2 O33];
  
  
 %% ordinary K, H
-% P = sqrtP * sqrtP';
-% R = sqrtR * sqrtR';
-% Rk = R + H*P*H';
-% K = P * H' * (Rk)^-1;
-% P = P - K *H *P;
-% sqrtP = chol(P,'lower');
-% X = X + K*dz;
-% X(10:13) = X(10:13) / norm(X(10:13));
+P = sqrtP * sqrtP';
+R = sqrtR * sqrtR';
+Rk = R + H*P*H';
+K = P * H' * (Rk)^-1;
+P = P - K *H *P;
+sqrtP = chol(P,'lower');
+X = X + K*dz;
+X(10:13) = X(10:13) / norm(X(10:13));
 
 %% square-root K, H
-M = tria([sqrtR, H * sqrtP; zeros(n, m), sqrtP], m + n);
-sqrtRk = M(1:m, 1:m);
-K = M(m + 1:m + n, 1:m);
-sqrtP = M(m + 1:n + m, m + 1:n + m);
-X = X + K*(sqrtRk')^-1*dz;
-X(10:13) = X(10:13) / norm(X(10:13));
+% M = tria([sqrtR, H * sqrtP; zeros(n, m), sqrtP], m + n);
+% sqrtRk = M(1:m, 1:m);
+% K = M(m + 1:m + n, 1:m);
+% sqrtP = M(m + 1:n + m, m + 1:n + m);
+% X = X + K*(sqrtRk')^-1*dz;
+% X(10:13) = X(10:13) / norm(X(10:13));
 end
 

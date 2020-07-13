@@ -27,14 +27,24 @@ Zaq = Z_aimu_dq_fcn(q(1),-q(2),-q(3),-q(4),a(1),a(2),a(3),g(1),g(2),g(3));
 Zaq(:, 2:4) = -Zaq(:, 2:4);
 H = [O33 O33 Zaa Zaq O33];
 
-%% square-root
-M = tria([sqrtR, H * sqrtP; zeros(n, m), sqrtP], m + n);
-sqrtRk = M(1:m, 1:m);
-K = M(m + 1:m + n, 1:m);
-sqrtP = M(m + 1:n + m, m + 1:n + m);
-
-X = X + K*(sqrtRk')^-1*dz;
+%% ordinary K, H
+P = sqrtP * sqrtP';
+R = sqrtR * sqrtR';
+Rk = R + H*P*H';
+K = P * H' * (Rk)^-1;
+P = P - K *H *P;
+sqrtP = chol(P,'lower');
+X = X + K*dz;
 X(10:13) = X(10:13) / norm(X(10:13));
+
+%% square-root
+% M = tria([sqrtR, H * sqrtP; zeros(n, m), sqrtP], m + n);
+% sqrtRk = M(1:m, 1:m);
+% K = M(m + 1:m + n, 1:m);
+% sqrtP = M(m + 1:n + m, m + 1:n + m);
+% 
+% X = X + K*(sqrtRk')^-1*dz;
+% X(10:13) = X(10:13) / norm(X(10:13));
 
 end
 
