@@ -28,22 +28,14 @@ initial_w = [0;0;0];
 initial_state = [initial_r; initial_v; initial_q];
 initial_ctrl = [0; 0];
 
-%% scripts
-run('sensors_init')
-run('init_ekf')
-
 
 %% preproc
 curr_state = initial_state;
 curr_yaw = initial_yaw;
 curr_w = initial_w;
 curr_ctrl = initial_ctrl;
-est_state_curr = initial_est_state;
-sqrtP_curr = initial_sqrtP;
 
 act_states = [];
-mes_states = [];
-est_states = [];
 timeline = [];
 %% sim
 t = 0;
@@ -83,43 +75,6 @@ for i = 1:N
     
     %% full state = [r v a q w]
     full_state_curr = [next_state(1:6);next_a;next_state(7:10);next_w; next_w_dot];
-    
-    
-    %% mes_state
-    mes_state_curr = mes_state_from_full_state(full_state_curr, ...
-    gps_pos_local_rsm, gps_vel_local_rsm, gps_quat_rsm, gps_attachment_r, ...
-    gps_slave_1, gps_slave_2, ...
-    imu_acc_rsm, imu_acc_scale_factor, imu_acc_bias, ... 
-    imu_rotvel_rsm, imu_rotvel_scale_factor, imu_rotvel_bias, imu_quat_shift);
-
-    %% estimation, X = [r v q]
-    a_mes = mes_state_curr(7:9);
-    w_mes = mes_state_curr(14:16);
-    
-    %% predict with imu
-    [est_state_next, sqrtP_next] = ekf_wr_prediction_imu(est_state_curr, sqrtP_curr, Q, a_mes, w_mes, dt);
-    
-    %% correct pos vel gnns
-%     if (mod(i, 50) == 5)
-    Z = mes_state_curr(1:6);
-    [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
-%     end
-     
-    %% correct vel abs and dir gnns
-    [est_state_next, sqrtP_next] = ...
-        ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, mes_state_curr(4:6), sqrtR_v_ad_gnns, gps_attachment_r);
-     
-    %% correct a
-%     Z = mes_state_curr(7:9);
-%     [est_state_next, sqrtP_next] = ekf_wr_correction_a_imu(est_state_next, sqrtP_next, Z, sqrtR_g_imu);
-    
-    %% correct pos vel att gnns
-    dp1 = mes_state_curr(17:19);
-    dp2 = mes_state_curr(20:22);
-    dr1 = gps_slave_1;
-    dr2 = gps_slave_2;
-    Z = [dp1; dp2];
-    [est_state_next, sqrtP_next] = ekf_wr_correction_p3_gnns(est_state_next, sqrtP_next, Z, sqrtR_p3_gnns, dr1, dr2);
 
     
     %% sim next step
@@ -131,11 +86,10 @@ for i = 1:N
     
     %% save
     act_states(:, i) = full_state_curr;
-    est_states(:, i) = est_state_curr;
-    mes_states(:, i) = mes_state_curr;
     timeline(i) = t;
 end
 
+ret
 
 figure
 hold on
