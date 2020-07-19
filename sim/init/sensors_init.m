@@ -1,7 +1,7 @@
 %% gps
 gps_pos_local_rsm = 0.01;
-gps_vel_local_rsm = 0.001;
-gps_quat_rsm = 0.001;
+gps_vel_local_rsm = 0.01;
+gps_quat_rsm = 0;
 gps_attachment_r = [0.3; -0.3; 0.9];
 gps_slave_1 = [0.3; 0.2; 0.1];
 gps_slave_2 = [0.3; -0.2; 0.1];
@@ -22,4 +22,4 @@ imu_rotvel_rsm = 0.001;
 imu_rotvel_scale_factor = [1.00 0      0;
                            0    1.00   0;
                            0    0     1.00];
-imu_rotvel_bias = [0.01; 0.00; 0.00];
+imu_rotvel_bias = [0.00; 0.00; 0.00];
