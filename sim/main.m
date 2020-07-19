@@ -15,7 +15,7 @@ rng(seed);
 
 % loop
 dt = 1e-3;
-N = 19999;
+N = 9999;
 
 % surf
 [surf_fcn, grad_surf] = custom_surf();
@@ -52,7 +52,7 @@ for i = 1:N
     
     %% actuators dyn mo deling
     next_ctrl = [5 ; 0.01 - 0.0001*t];   
-    if t < 10
+    if t > 10
         next_ctrl = [0 ; 0];
     end
     if t > 50 && t < 70
@@ -86,12 +86,12 @@ for i = 1:N
     %% correct pos vel gnns
 %     if (mod(i, 50) == 5)
     Z = mes_state_curr(1:6);
-%     [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
+    [est_state_next, sqrtP_next] = ekf_wr_correction_pv_gnns(est_state_next, sqrtP_next, Z, sqrtR_pv_gnns, gps_attachment_r);
 %     end
      
     %% correct vel abs and dir gnns
-%     [est_state_next, sqrtP_next] = ...
-%         ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, mes_state_curr(4:6), sqrtR_v_ad_gnns, gps_attachment_r);
+    [est_state_next, sqrtP_next] = ...
+        ekf_wr_correction_v_abs_and_dir_gnns(est_state_next, sqrtP_next, mes_state_curr(4:6), sqrtR_v_ad_gnns, gps_attachment_r);
      
     %% correct a
 %     Z = mes_state_curr(7:9);

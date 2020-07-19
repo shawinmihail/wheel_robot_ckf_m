@@ -21,7 +21,7 @@ end
 if sstar > 0
 
     
-    lambda = 2;
+    lambda = 1;
     delta = norm(DELTA);
     D = C' * DELTA;
     dp = spline_dot_point_3d(spline_coefs, sstar);
