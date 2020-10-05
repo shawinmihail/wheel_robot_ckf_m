@@ -17,6 +17,7 @@ grid on
 traj_spline_obj = cscvn(traj);
 traj_dubler_spline_obj = cscvn(traj_dubler);
 
+
 syms s
 assume(s, 'real')
 splines = zeros(3, length(t))*s;
