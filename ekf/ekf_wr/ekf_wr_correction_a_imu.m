@@ -3,7 +3,7 @@ n = length(X);
 m = length(Z);
 
 %% X [r v a q w]
-g = [0;0;-9.8];
+g = [0;0;-9.7235];
 r = X(1:3);
 v = X(4:6);
 a = X(7:9);
@@ -14,6 +14,7 @@ w = X(14:16);
 % Z [a_imu]
 Z_x = quatRotate(quatDual(q), a - g);
 dz = Z - Z_x;
+
 
 %% H
 O33 = zeros(3, 3);

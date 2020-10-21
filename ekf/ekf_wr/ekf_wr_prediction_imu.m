@@ -1,7 +1,7 @@
 function [X, sqrtP] = ekf_wr_prediction_imu(X, sqrtP, Q, a_mes, w_mes, dt)
 
 %% X [r v a q w]
-g = [0;0;-10];
+g = [0;0;-9.7235];
 r0 = X(1:3);
 v0 = X(4:6);
 q0 = X(10:13);
