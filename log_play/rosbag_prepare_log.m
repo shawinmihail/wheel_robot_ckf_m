@@ -4,13 +4,27 @@ close all
 format long
 
 %% read file
-path = 'logs/rosbag_logs/oct_14_2020/_2020-10-15-10-59-47.bag';
+% NO STEERING LOG
+% path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-14-20-34-36.bag';
+% forward and back
+path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-10-59-47.bag';
+% fast circs
+% path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-11-31-27.bag';
+% rect
+% path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-11-47-56.bag';
+% random circs
+% path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-11-58-47.bag';
+% long way
+% path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-12-04-50.bag';
+% way home
+% path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-12-07-16.bag';
+
 steering_logged = 1;
 bag = rosbag(path);
 bag.AvailableTopics
 ts = bag.StartTime + 2;
-% tf = bag.EndTime;
-tf = ts + 15;
+tf = bag.EndTime;
+% tf = ts + 15;
 
 %% gnns
 % base fix
@@ -96,15 +110,17 @@ end
 
 
 %% save
-save('logs/ts_triplet', 'ts_triplet')
-save('logs/array_triplet', 'array_triplet')
-save('logs/ts_imu', 'ts_imu')
-save('logs/array_imu', 'array_imu')
+save('log_play/data_prepared/ts_triplet', 'ts_triplet')
+save('log_play/data_prepared/array_triplet', 'array_triplet')
+save('log_play/data_prepared/ts_imu', 'ts_imu')
+save('log_play/data_prepared/array_imu', 'array_imu')
 if steering_logged
-save('logs/ts_steering', 'ts_steering')
-save('logs/array_steering', 'array_steering')
+save('log_play/data_prepared/ts_steering', 'ts_steering')
+save('log_play/data_prepared/array_steering', 'array_steering')
 end
 
+plot3(r_base_x-r_base_x(1),r_base_y-r_base_y(1),r_base_z-r_base_z(1))
+ret
 
 %% calib slaves
 calib_duration = 10; %s
@@ -147,7 +163,6 @@ if is_event
     end
 end
 
-    
     
 end
 

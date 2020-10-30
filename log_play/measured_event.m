@@ -31,7 +31,7 @@ for i = 1:length(stamps)
 end
 
 if multy_event_check > 0
-    warning('measured_event: multyply events detected, try set a smoller t step')
+%     warning('measured_event: multyply events detected, try set a smoller t step')
 end
 
 end
