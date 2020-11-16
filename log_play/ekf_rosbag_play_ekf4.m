@@ -38,11 +38,11 @@ gps_slave_1_enu = quatRotate(q, gps_slave_1_enu);
 gps_slave_2_enu = quatRotate(q, gps_slave_2_enu);
 
 %% setup_ekf !!!!!!!
-run('init_ekf3')
+run('init_ekf4')
 
 %% preproc
 est_state_next = initial_est_state;
-sqrtP_next = initial_sqrtP;
+P_next = P0;
 
 %% sim
 i = 0;
@@ -59,14 +59,25 @@ a_mes_enu_list = [];
 dr1_mes_enu_list = [];
 dr2_mes_enu_list = [];
 
-T0 = 110;
+T0 = 100;
 % T0 = ts_triplet(1);
 T = 160;
 % T = ts_triplet(end);
 step = 50e-3;
 % assume target point is imu attachment point
-dr_imu_gnns = [-0.3; 0.0; 0.3];
+dr_imu_gnns = [-0.4; 0.0; 0.4];
 dr_bshc_gnns = [0.0; 0.0; 0.6]; % back shaft center -> gnns
+
+w_imu_smoothed = [0;0;0];
+w_imu_sm_K = 0.25;
+
+a_imu_smoothed = [0;0;norm(g_calib)];
+a_imu_sm_K = 0.25;
+
+imu_data_for_c_test = [];
+
+a_gnns_smoothed = [0;0;0];
+a_gnns_sm_K = 0.25;
 for t = T0:step:T
     
     [isevent_imu, stamp_imu, measure_imu] = measured_event(t, t-step, ts_imu, array_imu);
@@ -74,20 +85,20 @@ for t = T0:step:T
 %     [is_event_steering, stamp_steering, measure_steering] = measured_event(t, t-step, ts_steering, array_steering);
 
     %% predict
-    [est_state_next, sqrtP_next] = ekf3_wr_predict(est_state_next, sqrtP_next, Q, step);
+    [est_state_next, P_next] = ekf4_wr_predict(est_state_next, a_imu_smoothed, w_imu_smoothed, P_next, Q, step, g_calib);
         
-    %% correct with imu
+    %% imu
     if isevent_imu
         a_mes = measure_imu(1:3)'; %???
         a_mes = [-a_mes(2);a_mes(1);a_mes(3)];
         w_mes = measure_imu(4:6)'-w_calib; %???
         w_mes = [-w_mes(2);w_mes(1);w_mes(3)];
         
-        [est_state_next, sqrtP_next] = ekf3_wr_corrrect_a_imu(est_state_next, sqrtP_next, a_mes, R_a_imu, g_calib);
-        [est_state_next, sqrtP_next] = ekf3_wr_corrrect_w_imu(est_state_next, sqrtP_next, w_mes, R_a_imu, g_calib);
-        
+        w_imu_smoothed = ekf4_smooth_K(w_mes, w_imu_smoothed, w_imu_sm_K);
+        a_imu_smoothed = ekf4_smooth_K(a_mes, a_imu_smoothed, a_imu_sm_K);
     end
     
+    %% gnns
     if is_event_triplet
         k0 = measure_triplet(13);
         k1 = measure_triplet(14);
@@ -103,6 +114,8 @@ for t = T0:step:T
         dr2_mes_enu = R_ref * dr_s2_mes;
 
         % save
+        imu_sample_for_c_test = [a_imu_smoothed; w_imu_smoothed];
+        imu_data_for_c_test = [imu_data_for_c_test imu_sample_for_c_test];
         enu_timeline = [enu_timeline t];
         r_mes_enu_list = [r_mes_enu_list r_mes_enu];
         v_mes_enu_list = [v_mes_enu_list v_mes_enu];
@@ -112,31 +125,33 @@ for t = T0:step:T
         if length(v_mes_enu_list(1,:)) > 1
             a_gnns = (v_mes_enu(:,end) - v_mes_enu_list(:,end-1)) / (enu_timeline(end) - enu_timeline(end-1));
         end
+        a_gnns_smoothed = ekf4_smooth_K(a_gnns, a_gnns_smoothed, a_gnns_sm_K); 
         a_mes_enu_list = [a_mes_enu_list a_gnns];
         %
         
-        %% correct a_gnns
-        Z = a_gnns;
-        [est_state_next, sqrtP_next] = ekf3_wr_correct_a_gnns(est_state_next, sqrtP_next, Z, R_a_gnns, dr_imu_gnns);
+        %% correct a
+        Z = a_gnns_smoothed;
+%         [est_state_next, P_next] = ekf4_wr_corrrect_a(est_state_next, P_next, Z, a_imu_smoothed, w_imu_smoothed, ... 
+%         R_a_gnns, dr_imu_gnns, -g_calib);
         
         %% correct pos vel gnns
         if k0 == 4             
             Z = [r_mes_enu; v_mes_enu];
-            [est_state_next, sqrtP_next] = ekf3_wr_correct_rv_gnns(est_state_next, sqrtP_next, Z, R_rv_gnns, dr_imu_gnns);
+            [est_state_next, P_next] = ekf4_wr_correct_rv_gnns(est_state_next, P_next, Z, R_rv_gnns, w_imu_smoothed, dr_imu_gnns);
         end
 
-        %% correct vel abs and dir gnns
+        %% correct u
         r_mes = measure_triplet(1:3)';
         v_mes = measure_triplet(4:6)';
 
         v_mes_enu = R_ref * v_mes;
         Z = v_mes_enu;
-        [est_state_next, sqrtP_next] = ekf3_wr_correct_u(est_state_next, sqrtP_next, Z, R_u_gnns, dr_bshc_gnns);
+%         [est_state_next, P_next] = ekf4_wr_correct_u(est_state_next, P_next, Z, R_u_gnns, w_imu_smoothed, dr_bshc_gnns);
 
-        % correct pos vel att gnns
+        %% correct q2
         if k1 == 4 && k2 == 4
             Z = [dr1_mes_enu; dr2_mes_enu];
-%             [est_state_next, sqrtP_next] = ekf3_wr_correct_q2_gnns(est_state_next, sqrtP_next, Z, R_q2_gnns, gps_slave_1_enu, gps_slave_2_enu);
+            [est_state_next, P_next] = ekf4_wr_correct_q2_gnns(est_state_next, P_next, Z, R_q2_gnns, gps_slave_1_enu, gps_slave_2_enu);
         end
        
     end
@@ -145,25 +160,24 @@ for t = T0:step:T
     
     % repair mes state
     timeline = [timeline t];
-    q = est_state_next(10:13);
     r = est_state_next(1:3);
     v = est_state_next(4:6);
-    a = est_state_next(7:9);
-    q = est_state_next(10:13);
-    w = est_state_next(14:16);
+    q = est_state_next(7:10);
     
-    estimated_a_mes = quatRotate(quatDual(q), est_state_next(7:9) - g_calib);
+    estimated_a_mes = a_imu_smoothed;
     estimated_a_mes = [estimated_a_mes(2);-estimated_a_mes(1);estimated_a_mes(3)];
-    estimated_w_mes = w + w_calib;
+    
+    estimated_w_mes = w_imu_smoothed;
     estimated_w_mes = [estimated_w_mes(2);-estimated_w_mes(1);estimated_w_mes(3)];
-    estimated_a_gnns = a + quatRotate(q, cross(w, cross(dr_imu_gnns, w)));
+    estimated_w_mes = estimated_w_mes + w_calib;
+    
+    estimated_a_gnns = a_gnns_smoothed;
     estimated_imu = [estimated_a_mes' estimated_w_mes' estimated_a_gnns'];
     estimated_array_imu = [estimated_array_imu; estimated_imu];
     
     estimated_r_base = r + quatRotate(q, dr_imu_gnns);
-    
-    estimated_v_base = v + quatRotate(q, cross(w, dr_imu_gnns)); %000
-    estimated_u_base = quatRotate(q, [1;0;0] * norm(v)) + quatRotate(q, cross(w, dr_bshc_gnns)); % 000
+    estimated_v_base = v + quatRotate(q, cross(w_imu_smoothed, dr_imu_gnns)); %
+    estimated_u_base = quatRotate(q, [1;0;0] * norm(v)) + quatRotate(q, cross(w_imu_smoothed, dr_bshc_gnns)); % 
     
     estimated_r_slave1 = quatRotate(q, gps_slave_1_enu);
     estimated_r_slave2 = quatRotate(q, gps_slave_2_enu);

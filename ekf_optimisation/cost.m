@@ -23,10 +23,11 @@ dx = ts_est.Data - ts_mes.Data;
 w_cost = vecnorm(dx');
 w_cost = w_cost(first_crop:end);
 
-% plot(w_cost)
-% QUALITY = 1 * mean(w_cost) +  max(abs(w_cost));
+plot(s1_cost)
+hold on
+plot(s2_cost)
 QUALITY = 1 * mean(s1_cost) + 1 * mean(s2_cost) + 2 * max(abs(s1_cost)) + 2 * max(abs(s2_cost));
-% QUALITY = QUALITY / 6
+QUALITY = QUALITY / 6
 
 
 
