@@ -10,6 +10,10 @@ w = X(14:16);
 %% mes model
 % Z [vgnns]
 % vgnns = quatRotate(q, ex * norm(v)) + quatRotate(q, cross(w, dr));
+% vb = quatRotate(quatDual(q), v);
+% if norm(vb) < 0.15
+%     return
+% end
 ex = [1;0;0];
 Z_x = quatRotate(q, ex * norm(v)) + quatRotate(q, cross(w, dr_bshc_gnns));
 dz = Z - Z_x;

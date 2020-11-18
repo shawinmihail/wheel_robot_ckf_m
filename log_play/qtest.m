@@ -5,7 +5,7 @@ ts_est =  resample(ts_est, enu_timeline);
 dx = ts_est.Data - ts_mes.Data;
 n_dx = vecnorm(dx');
 n_dx = n_dx(100:end);
-% plot(n_dx)
+plot(n_dx)
 QUALITY = mean(n_dx);
 
 

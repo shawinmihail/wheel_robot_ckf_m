@@ -3,18 +3,20 @@ clear
 close all
 format long
 
+ret
+
 %% read file
 % NO STEERING LOG
 % path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-14-20-34-36.bag';
 % forward and back
-path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-10-59-47.bag';
+% path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-10-59-47.bag';
 % fast circs
-% path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-11-31-27.bag';
+path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-11-31-27.bag';
 % rect
 % path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-11-47-56.bag';
 % random circs
 % path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-11-58-47.bag';
-% long way
+% long way in the field
 % path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-12-04-50.bag';
 % way home
 % path = 'log_play/rosbag_logs/oct_14_2020/_2020-10-15-12-07-16.bag';

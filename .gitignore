@@ -1,4 +1,8 @@
 *.*
 !*.m
 !*.slx
+<<<<<<< HEAD
 surface/generated/
+=======
+3d_control_limits/cvx/
+>>>>>>> 601e456fbc2abf86937517020fc78db69f1c5b2b
