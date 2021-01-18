@@ -41,7 +41,7 @@ timeline = [];
 t = 0;
 
 %% splines
-load('D:\!MATLAB\wheel_robot_ckf_m\ctrl\traj3d.mat')
+load('ctrl/traj3d.mat')
 traj2d = [traj3d(1, :); traj3d(2, :)];
 
 for i = 1:N
@@ -98,9 +98,9 @@ end
 % curve = vpa(subs(spline, t));
 % plot(curve(1, :), curve(2, :))
 % end
-figure
-hold on
-size(traj3d)
-plot3(traj3d(1, :), traj3d(2, :), traj3d(3, :),'b*')
-x = cscvn(traj3d)
-fnplt(x)
+% figure
+% hold on
+% size(traj3d)
+% plot3(traj3d(1, :), traj3d(2, :), traj3d(3, :),'b*')
+% x = cscvn(traj3d)
+% fnplt(x)
