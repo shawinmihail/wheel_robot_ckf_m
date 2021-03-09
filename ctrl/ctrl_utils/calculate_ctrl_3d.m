@@ -28,17 +28,13 @@ if sstar > 0
     cosPhi = DELTA' * C * [1; 0; 0] / delta;
     sinPhi = sqrt(1-cosPhi^2);
 %     sinPhi = dp' * C * [1; 0; 0] / norm_ps;
-    crossSign = sign(cross(DELTA, C * [1; 0; 0]));
+    nvect = cross(C * [1; 0; 0], DELTA);
+    crossSign = sign(nvect(3));
     u = -crossSign*(delta*lambda^2 + 2*lambda*cosPhi + (Delta_pss*sinPhi^2)/(delta*(-norm_ps^2 + Delta_pss)))/sinPhi;
-    
-%     eps = 1e-1;
-%     if norm(D) < eps
-%         lambda = norm(D)*10;
-%     end
-    
-%     u = (-lambda^2 * delta^2 - 2*v*lambda*D(1) - v^2 + v * sstar_dot * dp' * C * [1;0;0] + (v*D(1)/ delta)^2) ...
-%     / (v^2 * D(2));
-% 
+   
     lim = 1;
     u = min(lim, max(-lim, u));
+else
+    'warn check dist'
+%     ret
 end
