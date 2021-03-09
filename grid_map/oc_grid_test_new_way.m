@@ -10,13 +10,13 @@ oc_grid_dim = ceil(oc_grid_size/oc_grid_resolution);
 oc_grid_matrix = zeros(oc_grid_dim, oc_grid_dim);
 
 % lidar transform
-q_lid = [100;0;0;100];
+q_lid = [100;0;0;0];
 q_lid = q_lid/norm(q_lid);
-r_lid = [2.0; 0.0; 0.0];
+r_lid = [0.0; 0.0; 0.0];
 
 % curr state
 r = [0;0;0];
-q = [100;0;0;100];
+q = [100;0;0;0];
 q = q / norm(q);
 
 % curr mes
@@ -33,10 +33,13 @@ polarplot(theta, range, '.', 'LineWidth', 2);
 % mes transformation
 world_frame_lid = r + quatRotate(q, r_lid);
 
+figure
+hold on
 for i = 1:n
     lid_frame_obs = [range(i)*cos(theta(i)); range(i)*sin(theta(i)); 0];
     wr_frame_obs = quatRotate(q_lid, lid_frame_obs) + r_lid;
     world_frame_obs = quatRotate(q, wr_frame_obs) + r;
+    
     r_obs(:,i) = world_frame_obs;
     plot3(world_frame_obs(1),world_frame_obs(2),world_frame_obs(3), 'k.');
     
@@ -82,7 +85,9 @@ end
 %         index = indexes(:,i);
 %         oc_grid_matrix(index(1), index(2)) = 2;
 %     end
-% end
+% endfigure
+hold on
+axis equal
 
 oc_grid_matrix = refresh_grid(r_obs*0+world_frame_lid, r_obs, oc_grid_matrix, oc_grid_size, oc_grid_resolution);
 

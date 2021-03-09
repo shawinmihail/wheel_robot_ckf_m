@@ -1,8 +1,7 @@
 clc
 clear
 close all
-% rng(201)
-eps = 1e-3;
+% rng(505)
 
 
 % oc grid initial
@@ -11,7 +10,9 @@ oc_grid_resolution = 2;
 oc_grid_dim = ceil(oc_grid_size/oc_grid_resolution); 
 oc_grid_size = oc_grid_dim * oc_grid_resolution;
 oc_grid_matrix = zeros(oc_grid_dim, oc_grid_dim);
-% oc_grid_matrix = randn(oc_grid_dim, oc_grid_dim);
+oc_grid_matrix(1,1) = 1;
+oc_grid_matrix(1,2) = 2;
+lim = 1;
 
 % segment
 p2 = [1 + 5 *randn();1 + 5 *randn();0];
@@ -36,6 +37,7 @@ for i = 1:s(2)
     oc_grid_matrix(index(1), index(2)) = 1;
 end
 
+
 % end ray closed
 indexes = endray_cells(p2, oc_grid_size, oc_grid_resolution);
 s = size(indexes);
@@ -43,7 +45,6 @@ for i = 1:s(2)
     index = indexes(:,i);
     oc_grid_matrix(index(1), index(2)) = 2;
 end
-
 
 
 %% plot

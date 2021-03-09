@@ -5,6 +5,7 @@ format long
 
 %% read file
 path1 = '_2021-02-18-21-18-33.bag';
+path1 = '_2021-02-19-13-28-55.bag';
 
 
 bag1 = rosbag(path1);
@@ -19,35 +20,38 @@ stamp0 = cellfun(@(m) double(m.Stamp.Sec) + double(m.Stamp.Nsec) / 1e9, msgs1);
 stamp = stamp0 - stamp0(1);
 Ranges = cellfun(@(m) double(m.Range), msgs1, 'UniformOutput', false); 
 Theta = cellfun(@(m) double(m.Theta), msgs1, 'UniformOutput', false);   
-%%
-speed = 16;
+%
+speed = 5;
 
-% for i = 1:size(Ranges,1)
-% % obs_theta = Theta{i,:}*pi/180;
-% obs_theta = (Theta{i,:});
-% obs_r = Ranges{i,:};
-% 
-% % rej = 2*pi/3;
-% % rej_ = pi/60;
-% % obs_r = obs_r((obs_theta<(pi-rej))|(obs_theta>(pi+rej+rej_)));
-% % obs_theta = obs_theta((obs_theta<(pi-rej))|(obs_theta>(pi+rej+rej_)));
-% 
-% h = polarplot(obs_theta, obs_r,'.', 'LineWidth', 2);
-% rlim([0 5])
-% 
-% if (i == 1)
-%     pause(stamp(i)/speed);
-% else
-%     pause((stamp(i)-stamp(i-1))/speed);
-% end
-% end
-% ret
+for m = 1:999
+i = mod(m,size(Ranges,1)-800) + 800
+% obs_theta = Theta{i,:}*pi/180;
+obs_theta = (Theta{i,:});
+obs_r = Ranges{i,:};
+
+% rej = 2*pi/3;
+% rej_ = pi/60;
+% obs_r = obs_r((obs_theta<(pi-rej))|(obs_theta>(pi+rej+rej_)));
+% obs_theta = obs_theta((obs_theta<(pi-rej))|(obs_theta>(pi+rej+rej_)));
+
+h = polarplot(obs_theta, obs_r,'.', 'LineWidth', 2);
+rlim([0 5])
+
+if (i == 1)
+    pause(stamp(i)/speed);
+else
+    pause((stamp(i)-stamp(i-1))/speed);
+end
+end
+ret
 
 % oc grid initial
-oc_grid_size = 30;
-oc_grid_resolution = 0.35;
+oc_grid_size = 12;
+oc_grid_resolution = 0.25;
 oc_grid_dim = ceil(oc_grid_size/oc_grid_resolution);
 oc_grid_matrix = zeros(oc_grid_dim, oc_grid_dim);
+oc_grid_matrix(1,1) = 1;
+oc_grid_matrix(1,2) = 2;
 
 % lidar transform
 q_lid = [1;0;0;0];
@@ -71,7 +75,11 @@ n = length(range);
 % figure
 % hold on
 for i = 1:n
-    lid_frame_obs = [range(i)*cos(theta(i)); range(i)*sin(theta(i)); 0];
+    r = range(i);
+%     if r > 3
+%         r = 10;
+%     end
+    lid_frame_obs = [r*cos(theta(i)); r*sin(theta(i)); 0];
     wr_frame_obs = quatRotate(q_lid, lid_frame_obs) + r_lid;
     world_frame_obs = quatRotate(q, wr_frame_obs) + world_frame_lid;
     r_obs(:,i) = world_frame_obs;
@@ -89,7 +97,7 @@ end
 oc_grid_matrix = refresh_grid(r_obs*0+world_frame_lid, r_obs, oc_grid_matrix, oc_grid_size, oc_grid_resolution);
 k
 h = imagesc(oc_grid_matrix');
-pause(0.1)
+pause(0.01)
 clf
 
 end

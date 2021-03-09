@@ -1,18 +1,29 @@
-function indexes = beginray_cells(p1, oc_grid_size, oc_grid_resolution)
+function indexes = endray_cells_with_range_lim(p1, p2, lim, oc_grid_size, oc_grid_resolution)
 
 eps = oc_grid_resolution/10;
 indexes = [];
 oc_grid_dim = ceil(oc_grid_size/oc_grid_resolution);
+
 grid_lim = oc_grid_size/2 - eps;
-if p1(1) > grid_lim || p1(1) < -grid_lim
+if p2(1) > grid_lim || p2(1) < -grid_lim
     return
 end
-if p1(2) > grid_lim || p1(2) < -grid_lim
+if p2(2) > grid_lim || p2(2) < -grid_lim
     return
 end
 
-p1_h = [p1(1); p1(2)];
-[i1, i2, i3, i4] = x_area_indexes_of_point(p1_h, eps, oc_grid_size, oc_grid_resolution);
+dp = p2 - p1;
+ndp = norm(dp);
+if ndp < eps
+    return
+end
+
+if ndp > lim
+    return
+end
+
+p2_h = [p2(1); p2(2)];
+[i1, i2, i3, i4] = x_area_indexes_of_point(p2_h, eps, oc_grid_size, oc_grid_resolution);
 
 % x area
 if check_index(i1, oc_grid_dim)

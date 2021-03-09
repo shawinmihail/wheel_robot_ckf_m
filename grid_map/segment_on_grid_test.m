@@ -7,7 +7,7 @@ eps = 1e-3;
 
 % oc grid initial
 oc_grid_size = 32;
-oc_grid_resolution = 2;
+oc_grid_resolution = 1;
 oc_grid_dim = ceil(oc_grid_size/oc_grid_resolution); 
 oc_grid_size = oc_grid_dim * oc_grid_resolution;
 oc_grid_matrix = zeros(oc_grid_dim, oc_grid_dim);
@@ -16,8 +16,8 @@ oc_grid_matrix = zeros(oc_grid_dim, oc_grid_dim);
 % segment
 p2 = [1 + 5 *randn();1 + 5 *randn();0];
 p1 = [1 + 5 *randn();1 + 5 *randn();0];
-p1 = [-15.9;0;0];
-p2 = [17;1;0];
+p1 = [-1;1.5;0];
+p2 = [14;-9;0];
 dp = p2 - p1;
 
 dir = (dp) / norm(dp);

@@ -1,4 +1,4 @@
-function [indexes, xmin_d, xmax_d, ymin_d, ymax_d, x_inters_points, y_inters_points, xrays, yrays] = onray_free_cells(p1, p2, oc_grid_size, oc_grid_resolution)
+function [indexes, xmin_d, xmax_d, ymin_d, ymax_d, x_inters_points, y_inters_points, xrays, yrays] = onray_free_cells_with_range_lim(p1, p2, lim, oc_grid_size, oc_grid_resolution)
 eps = oc_grid_resolution/10;
 indexes = [];
 oc_grid_dim = ceil(oc_grid_size/oc_grid_resolution); 
@@ -9,6 +9,13 @@ if ndp < eps
     return
 end
 dir = (dp) / ndp;
+
+if ndp > lim
+    ndp = lim;
+    p2 = p1 + dir*ndp;
+    dp = p2 - p1;
+end
+
 tmin = 0;
 tmax = norm(dp);
 
