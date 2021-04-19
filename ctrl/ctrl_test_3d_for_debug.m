@@ -4,12 +4,12 @@ close all
 
 
 %% initial values and constants
-%rand
+%rand0
 seed = 200;
 rng(seed);
 
 % loop
-dt = 1e-3;
+dt = 2e-3;
 N = 10500;
 
 % surf
@@ -17,8 +17,8 @@ N = 10500;
 % [surf_fcn, grad_surf] = custom_surf();
 
 % initial
-initial_x = 9;
-initial_y = -8;
+initial_x = 8.5;
+initial_y = 1;
 initial_z = surf_fcn(initial_x, initial_y);
 initial_r = [initial_x;initial_y;initial_z];
 initial_v = [0;0;0];
@@ -40,21 +40,56 @@ act_states = [];
 timeline = [];
 %% sim
 t = 0;
-
 %% traj
 xt = [
-8 8 9 10 11
-];
+8.21600326006528;
+8.21600326006528;
+8.20758457882733;
+8.69140109578713;
+10.1710371562285;
+12.2270574729172;
+14.2766380038332;
+15.7387802050626;
+16.1990078075244;
+15.5268592055012;
+13.9128696601541;
+11.5072489414890
+]';
 
 yt = [
--10 -2 -1 -0.5 -0.5
-];
+0
+2.98925005022913;
+5.98628231571288;
+8.06028145277067;
+9.59202163069941;
+10.1472975092063;
+9.56870396277120;
+8.02025602141151;
+5.94089520714774;
+3.92006193799355;
+2.53060571605069;
+1.05548560520278
+]';
+
+% xt = [
+% 8 8 8 ...
+% 9 10 11 14 ...
+% ];
+% 
+% yt = [
+% -10 -6 -2 ...
+% -1 -0.5 -0.5 ...
+% -1
+% ];
 
 zt = 0 * xt + 1.00;
 set = [xt; yt; zt];
 
 [splines] = M_spline_from_set(set);
+spline_index = 1;
+error_cntr = 0;
 
+obstacle_list = [8.05, 4.5, 1];
 for i = 1:N
     
     i    
@@ -65,7 +100,10 @@ for i = 1:N
     q = curr_state(7:10);
     C = quat2matrix(q);
     v = 1;
-    [u, sstar, pstar, DELTA] = calculate_ctrl_3d(y, v, C, splines);
+%     [u, v, sstar, pstar, DELTA, spline_index, error_cntr]  = calculate_ctrl_3d_with_index(y, v, C, splines, spline_index, error_cntr);
+    [u, sstar, pstar, DELTA] = calculate_ctrl_3d(y, v, C, splines, obstacle_list);    
+    error_cntrs(i) = error_cntr;
+    spline_indexs(i) = spline_index;
     us(:, i) = u;
     sstars(: ,i) = sstar;
     pstars(:, i) = pstar;
@@ -148,4 +186,4 @@ end
 
 plot3(act_states(1,1),act_states(2,1),act_states(3,1), 'r*');
 plot3(act_states(1,:),act_states(2,:),act_states(3,:), 'k--');
-
+plot3(obstacle_list(:,1), obstacle_list(:,2), obstacle_list(:,3), '*','Color','g','MarkerSize',10);

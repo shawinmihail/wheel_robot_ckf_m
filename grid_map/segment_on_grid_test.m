@@ -168,6 +168,5 @@ for i = 1:s(2)
      plot(y_inters_points(1,i), y_inters_points(2,i), 'r*', 'LineWidth', 2)
 end
 
-
 % plot(linemin(1), linemin(2), 'r*')
 % plot(linemax(1), linemax(2), 'r*')

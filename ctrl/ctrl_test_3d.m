@@ -16,8 +16,8 @@ N = 19000;
 [surf_fcn, grad_surf] = custom_surf();
 
 % initial
-initial_x = 8;
-initial_y = 5;
+initial_x = 1;
+initial_y = 3;
 initial_z = surf_fcn(initial_x, initial_y);
 initial_r = [initial_x;initial_y;initial_z];
 initial_v = [0;0;0];
@@ -47,6 +47,8 @@ zt = surf_fcn(xt, yt);
 set = [xt; yt; zt];
 [splines] = M_spline_from_set(set);
 
+% obstacle_list = [10.5, 2, surf_fcn(10.5, 2); 18, 2.28, surf_fcn(18, 2.28); 22, 2.28, surf_fcn(22, 2.28)];
+obstacle_list = [9.5, 2, surf_fcn(10.5, 2)];
 for i = 1:N
     
     i    
@@ -57,7 +59,7 @@ for i = 1:N
     q = curr_state(7:10);
     C = quat2matrix(q);
     v = 1;
-    [u, sstar, pstar, DELTA] = calculate_ctrl_3d(y, v, C, splines);    
+    [u, sstar, pstar, DELTA] = calculate_ctrl_3d(y, v, C, splines, obstacle_list);    
     us(:, i) = u;
     sstars(: ,i) = sstar;
     pstars(:, i) = pstar;
@@ -140,4 +142,5 @@ end
 %
 plot3(act_states(1,1),act_states(2,1),act_states(3,1), 'r*');
 plot3(act_states(1,:),act_states(2,:),act_states(3,:), 'k--');
+plot3(obstacle_list(:,1), obstacle_list(:,2), obstacle_list(:,3), '*','Color','g','MarkerSize',10);
 

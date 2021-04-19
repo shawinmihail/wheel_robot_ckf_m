@@ -44,6 +44,9 @@ s = size(indexes);
 for i = 1:s(2)
     index = indexes(:,i);
     oc_grid_matrix(index(1), index(2)) = 2;
+    
+    center_x(i) = -(oc_grid_resolution * oc_grid_dim)/2 + (oc_grid_resolution * index(1)) - oc_grid_resolution/2;
+    center_y(i) = -(oc_grid_resolution * oc_grid_dim)/2 + (oc_grid_resolution * index(2)) - oc_grid_resolution/2;
 end
 
 
@@ -91,6 +94,9 @@ for i = 1:s(2)
      plot(y_inters_points(1,i), y_inters_points(2,i), 'r*', 'LineWidth', 2)
 end
 
-
+s = size(center_x);
+for i = 1:s
+     plot(center_x, center_y, 'm*', 'LineWidth', 2)
+end
 % plot(linemin(1), linemin(2), 'r*')
 % plot(linemax(1), linemax(2), 'r*')
