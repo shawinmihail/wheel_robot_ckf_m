@@ -10,7 +10,7 @@ rng(seed);
 
 % loop
 dt = 2e-3;
-N = 10500;
+N = 8500;
 
 % surf
 [surf_fcn, grad_surf] = plane_surf();

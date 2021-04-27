@@ -37,9 +37,9 @@ oc_grid_resolution = 0.33;
 % oc_grid_resolution = 1.25;
 oc_grid_dim = ceil(oc_grid_size/oc_grid_resolution);
 oc_grid_matrix = zeros(oc_grid_dim, oc_grid_dim);
-oc_grid_matrix(1,1) = 1;
-oc_grid_matrix(1,2) = 2;
-oc_grid_matrix(1,3) = 3;
+for i = 1:101
+    oc_grid_matrix(1,i) = -51 + i;
+end
 
 % lidar transform
 q_lid = [1;0;0;0];
@@ -81,7 +81,7 @@ for i = 1:n
 end
 
 % find cels
-oc_grid_matrix = refresh_grid(r_obs*0+world_frame_lid, r_obs, oc_grid_matrix, oc_grid_size, oc_grid_resolution);
+oc_grid_matrix = refresh_grid_additional(r_obs*0+world_frame_lid, r_obs, oc_grid_matrix, oc_grid_size, oc_grid_resolution);
 % oc_grid_matrix(wr_index(1), wr_index(2)) = 3;
 
 % plot
