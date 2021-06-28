@@ -2,7 +2,7 @@ function plot_frame(r, q)
 ex = [1;0;0];
 ey = [0;1;0];
 ez = [0;0;1];
-m = 8;
+m = 1;
 
 ex = quatRotate(q, ex)*m;
 ey = quatRotate(q, ey)*m;

@@ -3,3 +3,4 @@
 !*.slx
 surface/generated/
 3d_control_limits/cvx/
+bag_logs
