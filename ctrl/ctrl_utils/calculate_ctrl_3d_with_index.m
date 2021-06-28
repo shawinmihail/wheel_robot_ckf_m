@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 function [u, v, sstar, pstar, DELTA, index, error_cntr] = calculate_ctrl_3d_with_index(y, v, C, splines, index, error_cntr, obstacle_list)
+=======
+function [u, v, sstar, pstar, DELTA, index, error_cntr] = calculate_ctrl_3d_with_index(y, v, C, splines, index, error_cntr)
+>>>>>>> d43aaf4ab1a0de1100483fa4f7443fa09dc1065b
 u = 0;
 sstar = -1;
 pstar = [0;0;0];
@@ -23,11 +27,19 @@ msg = 'not in the beging of the road, stop'
 v = 0;
 return
 end
+<<<<<<< HEAD
 if error_cntr > 50 && index ~= length(splines)
 msg = 'check distance error, stop'
 v = 0;
 return
 end
+=======
+% if error_cntr > 50 && index ~= length(splines)
+% msg = 'check distance error, stop'
+% v = 0;
+% return
+% end
+>>>>>>> d43aaf4ab1a0de1100483fa4f7443fa09dc1065b
 
 spline_coefs = splines(:, :, index);
 slim = 1;
@@ -62,6 +74,7 @@ cosPhi = DELTA' * C * [1; 0; 0] / delta;
 sinPhi = sqrt(1-cosPhi^2);
 nvect = cross(C * [1; 0; 0], DELTA);
 crossSign = sign(nvect(3));
+<<<<<<< HEAD
 % u = -crossSign*(delta*lambda^2 + 2*lambda*cosPhi + (Delta_pss*sinPhi^2)/(delta*(-norm_ps^2 + Delta_pss)))/sinPhi;
 
 %%
@@ -109,6 +122,9 @@ signX = crossSign;
 phi = acos(cosPhi);
 u = surf_ctrl_pot_test_1(Delta_pss,Pi,Pi_mult,Pis,delta,mu,norm_ps,phi,signX);
 %%
+=======
+u = -crossSign*(delta*lambda^2 + 2*lambda*cosPhi + (Delta_pss*sinPhi^2)/(delta*(-norm_ps^2 + Delta_pss)))/sinPhi;
+>>>>>>> d43aaf4ab1a0de1100483fa4f7443fa09dc1065b
 
 lim = 1;
 u = min(lim, max(-lim, u));
