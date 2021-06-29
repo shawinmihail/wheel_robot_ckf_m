@@ -4,6 +4,9 @@ sstar = -1;
 pstar = [0;0;0];
 DELTA = [0;0;0];
 
+delta_h = 0;
+dot_p = 0;
+
 if index < 1
 msg = 'spline index error, index < 1'
 return
@@ -130,7 +133,7 @@ u = u + du;
 
 
 lim = 20*pi/180;
-% lim = 1;
+lim = 1;
 u = min(lim, max(-lim, u));
 error_cntr = 0;
 
