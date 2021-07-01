@@ -19,7 +19,7 @@ surf_fcn = @(x,y)(surf_fcn(x,y) - 2.5);
 
 % initial
 initial_x = -11.5;
-initial_y = 4.1;
+initial_y = 3.1;
 initial_z = surf_fcn(initial_x, initial_y);
 initial_r = [initial_x;initial_y;initial_z];
 initial_v = [0;0;0];
