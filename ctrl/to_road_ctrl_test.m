@@ -57,7 +57,7 @@ obstacle_list = [];
 % maneur
 maneur_displacement = 2;
 maneur_radius = 1.0;
-[virtual_set, virtual_way, virtual_zone_center, virtual_dir] = maneuver_zone_params(maneur_displacement, maneur_radius, set);
+[virtual_set, virtual_way, virtual_zone_center, virtual_dir] = virtual_zone_params(maneur_displacement, maneur_radius, set);
 angle_eps = 10*pi/180;
 in_domain = 0;
 mode = 1;
@@ -66,10 +66,13 @@ maneur_radius_eps = 0.1;
 inited = 0;
 start_u = 1;
 start_v = 1;
+y = initial_r;
+s_inside_ctrl_2 = 0;
 for i = 1:N
     
     i  
 
+    dr = curr_state(1:3) - y;
     y = curr_state(1:3);
     q = curr_state(7:10);
     C = quat2matrix(q);
@@ -85,8 +88,9 @@ for i = 1:N
     end
         
     if status == 2
-        [u, v, mode, mode_fixed, angle] = inside_zone_dir_control(q, y, virtual_dir, virtual_way, virtual_zone_center, ...
-        maneur_radius, angle_eps, maneur_radius_eps, 20*pi/180, mode, mode_fixed, start_u, start_v);
+%         [u, v, mode, mode_fixed, angle] = inside_zone_dir_control(q, y, virtual_dir, virtual_way, virtual_zone_center, ...
+%         maneur_radius, angle_eps, maneur_radius_eps, 20*pi/180, mode, mode_fixed, start_u, start_v);
+        [u, v, mode, s_inside_ctrl_2] = inside_zone_dir_control2(dr, s_inside_ctrl_2, start_u, start_v, mode);
     elseif status == 3
         [u, sstar, pstar, DELTA] = calculate_ctrl_3d(y, v, C, virtual_way, obstacle_list);
         v = 1;

@@ -1,4 +1,4 @@
-function [virtual_set, virtual_way, virtual_zone_center, virtual_dir] = maneuver_zone_params(maneur_displacement, maneur_radius, waypoints)
+function [virtual_set, virtual_way, virtual_zone_center, virtual_dir] = virtual_zone_params(maneur_displacement, maneur_radius, waypoints)
 
 set = waypoints;
 
